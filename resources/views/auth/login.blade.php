@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui">
-    <title>Engineers Tech</title>
+    <title>Cost Management</title>
     <meta content="Responsive admin theme build on top of Bootstrap 4" name="description" />
     <meta content="Themesdesign" name="author" />
     <link rel="shortcut icon" href="{{ asset('backend/assets/images/favicon.ico') }}">
@@ -33,7 +33,7 @@
                         <img src="{{ asset('backend/assets/images/logo-dark.png') }}" alt="" height="24">
                     </a>
                 </div> --}}
-                <h5 class="font-18 text-center">Welcome to &#128151 Engineers Tech</h5>
+                <h5 class="font-18 text-center">Welcome to Back</h5>
 
                 <form class="form-horizontal m-t-30" method="POST" action="{{ route('login') }}">
                     @csrf
@@ -83,14 +83,14 @@
                     </div>
 
                     <div class="form-group row m-t-30 m-b-0">
-                        <div class="col-sm-7">
+                        {{-- <div class="col-sm-7">
                             @if (Route::has('password.request'))
                                 <a class="text-muted" href="{{ route('password.request') }}">
                                     <i class="fa fa-lock m-r-5"></i>
                                     {{ __('Forgot Your Password?') }}
                                 </a>
                             @endif
-                        </div>
+                        </div> --}}
                         <div class="col-sm-5 text-right">
                             <a href="{{ route('register') }}" class="text-muted">Create an account</a>
                         </div>
