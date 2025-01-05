@@ -14,11 +14,9 @@
     <link href="{{ asset('backend/assets/css/metismenu.min.css') }}" rel="stylesheet" type="text/css">
     <link href="{{ asset('backend/assets/css/icons.css') }}" rel="stylesheet" type="text/css">
     <link href="{{ asset('backend/assets/css/style.css') }}" rel="stylesheet" type="text/css">
-
 </head>
 
 <body>
-
     <!-- Begin page -->
     <div class="accountbg"></div>
     <div class="home-btn d-none d-sm-block">
@@ -91,8 +89,8 @@
                                 </a>
                             @endif
                         </div> --}}
-                        <div class="col-sm-5 text-right">
-                            <a href="{{ route('register') }}" class="text-muted">Create an account</a>
+                        <div class="col-sm-12  text-center">
+                            <p>Don't have an account? <a href="{{ route('register') }}" class="text-muted">Create an account</a></p>
                         </div>
                     </div>
                 </form>
