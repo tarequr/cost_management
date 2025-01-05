@@ -3,8 +3,8 @@
     <!-- LOGO -->
     <div class="topbar-left">
         <a href="{{ route('dashboard') }}" class="logo">
-            <span class="logo-light">
-                <i class="mdi mdi-camera-control"></i> Venture
+            <span class="logo-light" style="font-size: 15px;">
+                <i class="mdi mdi-camera-control"></i> Cost Management
             </span>
             <span class="logo-sm">
                 <i class="mdi mdi-camera-control"></i>
