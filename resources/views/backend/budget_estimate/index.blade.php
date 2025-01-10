@@ -10,16 +10,14 @@
             <div class="page-title-box">
                 <div class="row align-items-center">
                     <div class="col-sm-6">
-                        <h4 class="page-title">Section Manage</h4>
+                        <h4 class="page-title">Budget Estimate Manage</h4>
                     </div>
                     <div class="col-sm-6">
                         <ol class=" float-right">
-                            @if (Auth::user()->hasPermission('sections.create'))
-                            <a href="{{ route('sections.create') }}" class="btn btn-sm btn-primary">
+                            <a href="{{ route('budget-estimate.create') }}" class="btn btn-sm btn-primary">
                                 <i class="fa fa-plus-circle"></i>
                                 Create
                             </a>
-                            @endif
                         </ol>
                     </div>
                 </div> <!-- end row -->
@@ -35,44 +33,27 @@
                                 <thead>
                                     <tr>
                                         <th class="text-center">SL</th>
-                                        <th class="text-center">Name</th>
-                                        <th class="text-center">Status</th>
+                                        <th class="text-center">Project Name</th>
+                                        <th class="text-center">Clint Name</th>
+                                        <th class="text-center">Project Period</th>
                                         <th class="text-center">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody class="text-center">
-                                    @foreach ($sections as $section)
+                                    @foreach ($budgetEstimates as $budgetEstimate)
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
-                                            <td>{{ $section->name }}</td>
+                                            <td>{{ $budgetEstimate->project_name }}</td>
+                                            <td>{{ $budgetEstimate->client_name }}</td>
                                             <td>
-                                                @if ($section->status == 1)
-                                                    <span class="badge badge-success">Active</span>
-                                                @else
-                                                    <span class="badge badge-danger">Inactive</span>
-                                                @endif
+                                                {{ $budgetEstimate->start_date->format('M d, Y') }} - {{ $budgetEstimate->end_date->format('M d, Y') }}
                                             </td>
                                             <td>
-                                                @if (Auth::user()->hasPermission('sections.edit'))
-                                                <a href="{{ route('sections.edit', $section->id) }}"
+                                                <a href="javascript:void(0)"
                                                     class="btn btn-sm btn-success">
-                                                    <i class="fa fa-edit"></i>
-                                                    Edit
+                                                    <i class="fa fa-calculator"></i>
+                                                     Calculate
                                                 </a>
-                                                @endif
-
-                                                {{-- <button type="button" onclick="deleteData({{ $section->id }})"
-                                                    class="btn btn-danger btn-sm" title="Delete">
-                                                    <i class="fa fa-trash"></i>
-                                                    <span>Delete</span>
-                                                </button>
-
-                                                <form id="delete-form-{{ $section->id }}" method="POST"
-                                                    action="{{ route('sections.destroy', $section->id) }}"
-                                                    style="display: none;">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                </form> --}}
                                             </td>
                                         </tr>
                                     @endforeach

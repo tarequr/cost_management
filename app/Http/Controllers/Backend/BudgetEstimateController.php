@@ -15,8 +15,8 @@ class BudgetEstimateController extends Controller
      */
     public function index()
     {
-        $budgetEstimates = BudgetEstimate::orderBy('id', 'desc')->get();
-        return view('backend.budget-estimate.index', compact('budgetEstimates'));
+        $budgetEstimates = BudgetEstimate::where('user_id', auth()->user()->id)->orderBy('id', 'desc')->get();
+        return view('backend.budget_estimate.index', compact('budgetEstimates'));
     }
 
     /**
