@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Backend\BudgetEstimateController;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,3 +18,11 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+
+#Backend
+// Route::group(['prefix' => 'backend'], function () {
+//     Route::get('/', function () {
+//         return view('backend.index');
+//     });
+
+Route::resource('budget-estimate', BudgetEstimateController::class);

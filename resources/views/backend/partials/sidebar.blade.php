@@ -12,7 +12,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="#" class="waves-effect"><i class="icon-diamond"></i><span> Budget Estimate </span></a>
+                    <a href="{{ route('budget-estimate.index') }}" class="waves-effect"><i class="icon-diamond"></i><span> Budget Estimate </span></a>
                 </li>
                 {{-- <li>
                     <a href="calendar.html" class="waves-effect"><i class="icon-calendar"></i><span> Calendar </span></a>
