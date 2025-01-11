@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers\Backend;
 
-use App\Http\Controllers\Controller;
-use App\Models\BudgetEstimate;
 use Illuminate\Http\Request;
+use App\Models\BudgetEstimate;
+use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
 
 class BudgetEstimateController extends Controller
 {
@@ -37,7 +38,26 @@ class BudgetEstimateController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        // $request->validate([
+        //     'name' => 'required|unique:sections,name'
+        // ]);
+
+        try {
+            BudgetEstimate::create([
+                'user_id' => auth()->user()->id,
+                'project_name' => $request->project_name,
+                'client_name' => $request->client_name,
+                'start_date' => $request->start_date,
+                'end_date' => $request->end_date,
+            ]);
+
+            notify()->success('Section Created Successfully', 'Success');
+            return redirect()->route('budget-estimate.index');
+        } catch (\Throwable $th) {
+            Log::error($th->getMessage());
+            notify()->error('Section Create Failed', 'Error');
+            return back();
+        }
     }
 
     /**

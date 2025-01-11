@@ -78,11 +78,6 @@
                                     @enderror
                                 </div>
 
-                                {{-- <div class="form-group">
-                                    <label for="file">Upload Document</label>
-                                    <input type="file" id="file" name="file" class="dropify" />
-                                </div> --}}
-
                                 <div class="form-group text-center">
                                     <button type="submit" class="btn btn-primary">
                                         <i class="fa fa-save"></i> Save
