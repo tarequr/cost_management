@@ -25,4 +25,8 @@ Route::get('/', function () {
 //         return view('backend.index');
 //     });
 
-Route::resource('budget-estimate', BudgetEstimateController::class);
+
+
+Route::group(['middleware' => 'auth'], function () {
+    Route::resource('budget-estimate', BudgetEstimateController::class);
+});

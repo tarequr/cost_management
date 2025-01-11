@@ -26,7 +26,7 @@ class BudgetEstimateController extends Controller
      */
     public function create()
     {
-        //
+        return view('backend.budget_estimate.create');
     }
 
     /**
