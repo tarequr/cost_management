@@ -20,13 +20,6 @@ Route::get('/', function () {
 
 
 #Backend
-// Route::group(['prefix' => 'backend'], function () {
-//     Route::get('/', function () {
-//         return view('backend.index');
-//     });
-
-
-
 Route::group(['middleware' => 'auth'], function () {
     Route::resource('budget-estimate', BudgetEstimateController::class);
 });

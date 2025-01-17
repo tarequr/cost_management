@@ -30,7 +30,7 @@
 
     @stack('css')
 
-    {{-- <link href="{{ asset('css/iziToast.css') }}" rel="stylesheet"> --}}
+    <link href="{{ asset('css/iziToast.css') }}" rel="stylesheet">
 </head>
 
 <body>
@@ -81,9 +81,9 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.10/js/select2.min.js"></script>
 
-    {{-- <script src="{{ asset('js/iziToast.js') }}"></script>
+    <script src="{{ asset('js/iziToast.js') }}"></script>
 
-    @include('vendor.lara-izitoast.toast') --}}
+    @include('vendor.lara-izitoast.toast')
 
     @stack('js')
 

@@ -38,9 +38,11 @@ class BudgetEstimateController extends Controller
      */
     public function store(Request $request)
     {
-        // $request->validate([
-        //     'name' => 'required|unique:sections,name'
-        // ]);
+        $request->validate([
+            'project_name' => 'required',
+            'start_date' => 'required',
+            'end_date' => 'required',
+        ]);
 
         try {
             BudgetEstimate::create([
@@ -51,11 +53,11 @@ class BudgetEstimateController extends Controller
                 'end_date' => $request->end_date,
             ]);
 
-            notify()->success('Section Created Successfully', 'Success');
+            notify()->success('Budget Estimate Created Successfully', 'Success');
             return redirect()->route('budget-estimate.index');
         } catch (\Throwable $th) {
             Log::error($th->getMessage());
-            notify()->error('Section Create Failed', 'Error');
+            notify()->error('Budget Estimate Create Failed', 'Error');
             return back();
         }
     }
