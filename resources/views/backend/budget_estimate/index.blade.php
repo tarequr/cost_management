@@ -49,7 +49,7 @@
                                                 {{ $budgetEstimate->start_date->format('M d, Y') }} - {{ $budgetEstimate->end_date->format('M d, Y') }}
                                             </td>
                                             <td>
-                                                <a href="javascript:void(0)"
+                                                <a href="{{ route('budget-calculator.index', $budgetEstimate->id) }}"
                                                     class="btn btn-sm btn-success">
                                                     <i class="fa fa-calculator"></i>
                                                      Calculate

@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Backend\BudgetEstimateController;
+use App\Http\Controllers\Backend\BudgetCalculatorController;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,4 +23,6 @@ Route::get('/', function () {
 #Backend
 Route::group(['middleware' => 'auth'], function () {
     Route::resource('budget-estimate', BudgetEstimateController::class);
+
+    Route::get('plan/{budgetEstimateID}/budget-calculator', [BudgetCalculatorController::class, 'index'])->name('budget-calculator.index');
 });
