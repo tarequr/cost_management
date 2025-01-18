@@ -13,4 +13,9 @@ class BudgetCalculatorController extends Controller
         $budgetEstimate = BudgetEstimate::findOrFail($budgetEstimateID);
         return view('backend.budget_calculator.index', compact('budgetEstimate'));
     }
+
+    public function store(Request $request)
+    {
+        //
+    }
 }

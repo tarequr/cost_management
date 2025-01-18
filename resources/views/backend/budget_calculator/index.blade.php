@@ -115,31 +115,85 @@
 
                         <div class="form-group">
                             <label for="from_date" class="col-form-label">From Date:</label>
-                            <input type="date" class="form-control" name="from_date" id="from_date" min="{{ $budgetEstimate->start_date }}" max="{{ $budgetEstimate->end_date }}" required>
+                            <input type="date" class="form-control" name="from_date" id="from_date"
+                                min="{{ \Carbon\Carbon::parse($budgetEstimate->start_date)->format('Y-m-d') }}"
+                                max="{{ \Carbon\Carbon::parse($budgetEstimate->end_date)->format('Y-m-d') }}" required>
                         </div>
 
                         <div class="form-group">
                             <label for="to_date" class="col-form-label">To Date:</label>
-                            <input type="date" class="form-control" name="to_date" id="to_date" required>
+                            <input type="date" class="form-control" name="to_date" id="to_date"
+                                min="{{ \Carbon\Carbon::parse($budgetEstimate->start_date)->format('Y-m-d') }}"
+                                max="{{ \Carbon\Carbon::parse($budgetEstimate->end_date)->format('Y-m-d') }}" required>
                         </div>
 
                         <div class="form-group">
-                            <label for="home_page" class="col-form-label">Home Page:</label>
-                            <select name="home_page" id="home_page" class="form-control" required>
-                                <option value="1">Yes</option>
-                                <option value="0">No</option>
-                            </select>
+                            <label class="col-form-label">Rate Type:</label>
+                            <div class="form-check">
+                                <input type="radio" class="form-check-input text-uppercase" id="fixedRateType" name="rate" value="fixed">Fixed
+                                <label class="form-check-label" for="fixedRateType"></label>
+                            </div>
+                            <div class="form-check">
+                                <input type="radio" class="form-check-input text-uppercase" id="hourlyRateType" name="rate" value="hourly">Hourly
+                                <label class="form-check-label" for="hourlyRateType"></label>
+                            </div>
+                        </div>
+
+                        <!-- Fixed Rate Field -->
+                        <div class="form-group" id="fixedRateGroup">
+                            <label for="fixed_rate" class="col-form-label">Fixed Rate:</label>
+                            <input type="number" class="form-control" name="fixed_rate" id="fixed_rate" placeholder="Enter fixed rate">
+                        </div>
+
+                        <!-- Hourly Rate Fields -->
+                        <div class="form-group" id="hourlyRateGroup">
+                            <label for="hourly_rate" class="col-form-label">Hourly Rate:</label>
+                            <input type="number" class="form-control" name="hourly_rate" id="hourly_rate" placeholder="Enter hourly rate">
+                        </div>
+                        <div class="form-group" id="numberOfHoursGroup">
+                            <label for="number_of_hours" class="col-form-label">Number of Hours:</label>
+                            <input type="number" class="form-control" name="number_of_hours" id="number_of_hours" placeholder="Enter number of hours">
                         </div>
                     </div>
                     <div class="modal-footer">
-                        {{-- <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button> --}}
                         <button type="submit" class="btn btn-primary">Save</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
+
 @endsection
 
 @push('js')
+    <script>
+        $(document).ready(function () {
+            // Initially hide both groups
+            $("#fixedRateGroup").hide();
+            $("#hourlyRateGroup").hide();
+            $("#numberOfHoursGroup").hide();
+
+            // Listen for changes on the rate type radio buttons
+            $("input[name='rate']").on("change", function () {
+                if ($(this).val() === "fixed") {
+                    // Show Fixed Rate and hide Hourly Rate fields
+                    $("#fixedRateGroup").show();
+                    $("#fixed_rate").prop("required", true); // Make required
+
+                    $("#hourlyRateGroup").hide();
+                    $("#numberOfHoursGroup").hide();
+                    $("#hourly_rate, #number_of_hours").prop("required", false); // Remove required
+                } else if ($(this).val() === "hourly") {
+                    // Show Hourly Rate fields and hide Fixed Rate field
+                    $("#fixedRateGroup").hide();
+                    $("#fixed_rate").prop("required", false); // Remove required
+
+                    $("#hourlyRateGroup").show();
+                    $("#numberOfHoursGroup").show();
+                    $("#hourly_rate, #number_of_hours").prop("required", true); // Make required
+                }
+            });
+        });
+
+    </script>
 @endpush

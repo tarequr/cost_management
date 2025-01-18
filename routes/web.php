@@ -25,4 +25,5 @@ Route::group(['middleware' => 'auth'], function () {
     Route::resource('budget-estimate', BudgetEstimateController::class);
 
     Route::get('plan/{budgetEstimateID}/budget-calculator', [BudgetCalculatorController::class, 'index'])->name('budget-calculator.index');
+    Route::get('plan/budget-calculator/store', [BudgetCalculatorController::class, 'store'])->name('budget-calculator.store');
 });
