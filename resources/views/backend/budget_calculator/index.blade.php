@@ -51,6 +51,22 @@
                                     </tr>
                                 </thead>
                                 <tbody class="text-center">
+                                    @foreach ($budgetCalculators as $budgetCalculator)
+                                        <tr>
+                                            <td>{{ $budgetCalculator->task_name }}</td>
+                                            <td>
+                                                <span class="text-uppercase">{{ date('M d', strtotime($budgetCalculator->from_date)) .' - ' . date('M d', strtotime($budgetCalculator->to_date)) }}</span>
+                                            </td>
+                                            <td>
+                                                @if ($budgetCalculator->rate == 'fixed')
+                                                    <span class="text-uppercase">Fixed</span>
+                                                @else
+                                                    <span class="text-uppercase">Hourly - ({{ $budgetCalculator->hourly_rate.' hours' }} * {{ $budgetCalculator->number_of_hours. ' Rate' }})</span>
+                                                @endif
+                                            </td>
+                                            <td>TK {{ $budgetCalculator->total }}</td>
+                                        </tr>
+                                    @endforeach
                                 </tbody>
                             </table>
                         </div>
@@ -64,25 +80,26 @@
 
                             <div class="mb-4">
                                 <span class="text-muted text-uppercase">Summary</span>
-                                <p class="h2 font-weight-bold text-success mb-0">$160.00</p>
+                                <p class="h2 font-weight-bold text-success mb-0">TK {{ $budgetEstimate->budgetCalculators ? $budgetEstimate->budgetCalculators->sum('total') : '00:00' }}</p>
                             </div>
 
                             <div class="row mb-4">
                                 <div class="col-6">
                                     <span class="text-muted text-uppercase">Tasks</span>
-                                    <p class="h4 font-weight-bold mb-0">$160.00</p>
+                                    <p class="h4 font-weight-bold mb-0">{{ $budgetEstimate->budgetCalculators->count() }}</p>
                                 </div>
 
                                 <div class="col-6">
                                     <span class="text-muted text-uppercase">Weeks</span>
-                                    <p class="h4 font-weight-bold mb-0">$160.00</p>
+                                    <p class="h4 font-weight-bold mb-0">1</p>
                                 </div>
                             </div>
 
                             <div class="border-top pt-3">
                                 <span class="text-muted text-uppercase">Delivery Date</span>
                                 <p class="h5 font-weight-bold mb-0">
-                                    <i class="bi bi-calendar text-primary me-2"></i>20/02/2025
+                                    <i class="bi bi-calendar text-primary me-2"></i>
+                                    {{ $budgetEstimate->budgetCalculators ? date('M d, Y', strtotime($budgetEstimate->budgetCalculators->max('to_date'))) : '' }}
                                 </p>
                             </div>
                         </div>
@@ -107,6 +124,8 @@
 
                 <form method="POST" action="{{ route('budget-calculator.store') }}" id="myform">
                     @csrf
+
+                    <input type="hidden" name="budget_estimate_id" value="{{ $budgetEstimate->id }}">
 
                     <div class="modal-body">
                         <div class="form-group">

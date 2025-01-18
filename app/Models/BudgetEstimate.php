@@ -15,4 +15,9 @@ class BudgetEstimate extends Model
         'start_date' => 'datetime',
         'end_date' => 'datetime',
     ];
+
+    public function budgetCalculators()
+    {
+        return $this->hasMany(BudgetCalculator::class);
+    }
 }
