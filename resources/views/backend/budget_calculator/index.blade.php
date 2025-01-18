@@ -102,6 +102,29 @@
                                     {{ $budgetEstimate->budgetCalculators && $budgetEstimate->budgetCalculators->count() > 0 ? date('M d, Y', strtotime($budgetEstimate->budgetCalculators->max('to_date'))) : '' }}
                                 </p>
                             </div>
+
+                            <div class="row mb-4 mt-2">
+                                <div class="col-12">
+                                    <span class="text-muted text-uppercase">EV :</span>
+                                    <p class="h4 font-weight-bold mb-0">0</p>
+                                </div>
+                                <div class="col-12">
+                                    <span class="text-muted text-uppercase">PV :</span>
+                                    <p class="h4 font-weight-bold mb-0">0</p>
+                                </div>
+                                <div class="col-12">
+                                    <span class="text-muted text-uppercase">BAC :</span>
+                                    <p class="h4 font-weight-bold mb-0">0</p>
+                                </div>
+                                <div class="col-12">
+                                    <span class="text-muted text-uppercase">CV :</span>
+                                    <p class="h4 font-weight-bold mb-0">0</p>
+                                </div>
+                                <div class="col-12">
+                                    <span class="text-muted text-uppercase">SV :</span>
+                                    <p class="h4 font-weight-bold mb-0">0</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -135,16 +158,12 @@
 
                         <div class="form-group">
                             <label for="from_date" class="col-form-label">From Date:</label>
-                            <input type="date" class="form-control" name="from_date" id="from_date"
-                                min="{{ \Carbon\Carbon::parse($budgetEstimate->start_date)->format('Y-m-d') }}"
-                                max="{{ \Carbon\Carbon::parse($budgetEstimate->end_date)->format('Y-m-d') }}" required>
+                            <input type="date" class="form-control" name="from_date" id="from_date" min="{{ \Carbon\Carbon::parse($budgetEstimate->start_date)->format('Y-m-d') }}" required>
                         </div>
 
                         <div class="form-group">
                             <label for="to_date" class="col-form-label">To Date:</label>
-                            <input type="date" class="form-control" name="to_date" id="to_date"
-                                min="{{ \Carbon\Carbon::parse($budgetEstimate->start_date)->format('Y-m-d') }}"
-                                max="{{ \Carbon\Carbon::parse($budgetEstimate->end_date)->format('Y-m-d') }}" required>
+                            <input type="date" class="form-control" name="to_date" id="to_date" min="{{ \Carbon\Carbon::parse($budgetEstimate->start_date)->format('Y-m-d') }}" required>
                         </div>
 
                         <div class="form-group">
