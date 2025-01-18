@@ -99,7 +99,7 @@
                                 <span class="text-muted text-uppercase">Delivery Date</span>
                                 <p class="h5 font-weight-bold mb-0">
                                     <i class="bi bi-calendar text-primary me-2"></i>
-                                    {{ $budgetEstimate->budgetCalculators ? date('M d, Y', strtotime($budgetEstimate->budgetCalculators->max('to_date'))) : '' }}
+                                    {{ $budgetEstimate->budgetCalculators && $budgetEstimate->budgetCalculators->count() > 0 ? date('M d, Y', strtotime($budgetEstimate->budgetCalculators->max('to_date'))) : '' }}
                                 </p>
                             </div>
                         </div>
