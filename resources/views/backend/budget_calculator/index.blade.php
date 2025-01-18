@@ -94,7 +94,6 @@
     </div>
     <!-- content -->
 
-
     <!-- Add Modal -->
     <div class="modal fade" id="addModal" tabindex="-1" data-backdrop="static" role="dialog" aria-labelledby="addModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
@@ -105,8 +104,10 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <form method="POST" action="" id="myform">
+
+                <form method="POST" action="{{ route('budget-calculator.store') }}" id="myform">
                     @csrf
+
                     <div class="modal-body">
                         <div class="form-group">
                             <label for="task_name" class="col-form-label">Task Name:</label>
