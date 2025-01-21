@@ -48,7 +48,7 @@
                                     <label for="project_name">Project Name <sup class="text-danger">*</sup></label>
                                     <input type="text" id="project_name" name="project_name"
                                         class="form-control @error('project_name') is-invalid @enderror"
-                                        value="{{ old('project_name') }}" placeholder="Enter project name" autocomplete="off">
+                                        value="{{ old('project_name') }}" placeholder="Enter project name" autocomplete="off" required>
                                     @error('project_name')
                                         <span class="text-danger">{{ $message }}</span>
                                     @enderror
@@ -58,6 +58,12 @@
                                     <label for="client_name">Client Name</label>
                                     <input type="text" id="client_name" name="client_name" class="form-control"
                                         value="{{ old('client_name') }}" placeholder="Enter client name" autocomplete="off">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="budget_amount">Budget Amount <sup class="text-danger">*</sup></label>
+                                    <input type="number" id="budget_amount" name="budget_amount" class="form-control"
+                                        value="{{ old('budget_amount') }}" placeholder="Enter client name" autocomplete="off" required>
                                 </div>
 
                                 <div class="form-group">
