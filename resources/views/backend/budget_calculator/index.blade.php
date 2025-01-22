@@ -30,8 +30,16 @@
                         <div class="d-flex justify-content-between p-3">
                             <div style="background-color: aliceblue; padding: 5px 15px;">
                                 <h4>{{ $budgetEstimate->project_name }}</h4>
-                                <p class="mb-0" style="font-size: 16px"><b>Planned Budget:</b> <span class="badge badge-primary">{{ $budgetEstimate->budget_amount }}</span></p>
-                                <p class="mb-0"><b>{{ $budgetEstimate->client_name }}</b> | <span class="text-uppercase">{{ date('M d, Y', strtotime($budgetEstimate->start_date)) }} - {{ date('M d, Y', strtotime($budgetEstimate->end_date)) }}</span></p>
+                                <p class="mb-0" style="font-size: 16px">
+                                    <b>Planned Budget:</b>
+                                    <span class="badge badge-primary">{{ $plannedValue }}</span>
+                                </p>
+                                <p class="mb-0">
+                                    <b>{{ $budgetEstimate->client_name }}</b> |
+                                    <span class="text-uppercase">
+                                        {{ date('M d, Y', strtotime($budgetEstimate->start_date)) }} - {{ date('M d, Y', strtotime($budgetEstimate->end_date)) }}
+                                    </span>
+                                </p>
                             </div>
                             <div>
                                 <a href="javascript:void(0);" class="btn btn-primary" data-toggle="modal" data-target="#addModal">
@@ -81,18 +89,18 @@
 
                             <div class="mb-4">
                                 <span class="text-muted text-uppercase">Summary</span>
-                                <p class="h2 font-weight-bold text-success mb-0">TK {{ $budgetEstimate->budgetCalculators ? $budgetEstimate->budgetCalculators->sum('total') : '00:00' }}</p>
+                                <p class="h2 font-weight-bold text-success mb-0">TK {{ $totalCost ? $totalCost : '00:00' }}</p>
                             </div>
 
                             <div class="row mb-4">
                                 <div class="col-6">
                                     <span class="text-muted text-uppercase">Tasks</span>
-                                    <p class="h4 font-weight-bold mb-0">{{ $budgetEstimate->budgetCalculators->count() }}</p>
+                                    <p class="h4 font-weight-bold mb-0">{{ $totalTasks }}</p>
                                 </div>
 
                                 <div class="col-6">
                                     <span class="text-muted text-uppercase">Weeks</span>
-                                    <p class="h4 font-weight-bold mb-0">1</p>
+                                    <p class="h4 font-weight-bold mb-0">{{ ceil(\Carbon\Carbon::parse($budgetEstimate->start_date)->diffInDays($budgetEstimate->end_date) / 7) }}</p>
                                 </div>
                             </div>
 
@@ -105,25 +113,39 @@
                             </div>
 
                             <div class="row mb-4 mt-2">
-                                <div class="col-12">
+                                {{-- <div class="col-12">
                                     <span class="text-muted text-uppercase">EV :</span>
-                                    <p class="h4 font-weight-bold mb-0">0</p>
+                                    <p class="h4 font-weight-bold mb-0">{{ ceil($earnedValue) }}</p>
                                 </div>
                                 <div class="col-12">
                                     <span class="text-muted text-uppercase">PV :</span>
-                                    <p class="h4 font-weight-bold mb-0">0</p>
+                                    <p class="h4 font-weight-bold mb-0">{{ ceil($plannedValue) }}</p>
                                 </div>
                                 <div class="col-12">
                                     <span class="text-muted text-uppercase">BAC :</span>
-                                    <p class="h4 font-weight-bold mb-0">0</p>
-                                </div>
+                                    <p class="h4 font-weight-bold mb-0">{{ ceil($bac) }}</p>
+                                </div> --}}
                                 <div class="col-12">
                                     <span class="text-muted text-uppercase">CV :</span>
-                                    <p class="h4 font-weight-bold mb-0">0</p>
+                                    {{-- <p class="h4 font-weight-bold mb-0">{{ ceil($costVariance) }}</p> --}}
+                                    <p class="h6 font-weight-bold mb-0">
+                                        @if (ceil($costVariance) > 0)
+                                            <span class="text-success">(+) Under</span>
+                                        @else
+                                            <span class="text-danger">(-) Over</span>
+                                        @endif
+                                    </p>
                                 </div>
                                 <div class="col-12">
                                     <span class="text-muted text-uppercase">SV :</span>
-                                    <p class="h4 font-weight-bold mb-0">0</p>
+                                    {{-- <p class="h4 font-weight-bold mb-0">{{ ceil($scheduleVariance) }}</p> --}}
+                                    <p class="h6 font-weight-bold mb-0">
+                                        @if (ceil($scheduleVariance) > 0)
+                                            <span class="text-success">(+) Under</span>
+                                        @else
+                                            <span class="text-danger">(-) Over</span>
+                                        @endif
+                                    </p>
                                 </div>
                             </div>
                         </div>

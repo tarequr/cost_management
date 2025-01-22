@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Backend;
 
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Models\BudgetEstimate;
 use App\Models\BudgetCalculator;
@@ -15,7 +16,53 @@ class BudgetCalculatorController extends Controller
         $budgetEstimate = BudgetEstimate::with('budgetCalculators')->findOrFail($budgetEstimateID);
         $budgetCalculators = $budgetEstimate->budgetCalculators()->orderBy('id', 'desc')->get();
 
-        return view('backend.budget_calculator.index', compact('budgetEstimate', 'budgetCalculators'));
+        $totalCost = $budgetEstimate->budgetCalculators->sum('total');
+        $totalTasks = $budgetEstimate->budgetCalculators->count();
+
+        // Calculate budget metrics
+        $plannedValue = $budgetEstimate->budget_amount;
+        $earnedValue = $this->calculateEarnedValue($budgetEstimate);
+        $actualCost = $totalCost;
+        $costVariance = $earnedValue - $actualCost;
+        $scheduleVariance = $earnedValue - $plannedValue;
+        $bac = $budgetEstimate->budget_amount;
+
+        return view('backend.budget_calculator.index', compact(
+            'budgetEstimate',
+            'budgetCalculators',
+            'totalCost',
+            'totalTasks',
+            'plannedValue',
+            'earnedValue',
+            'actualCost',
+            'costVariance',
+            'scheduleVariance',
+            'bac'
+        ));
+    }
+
+    private function calculateEarnedValue($budgetEstimate)
+    {
+        $today = Carbon::now();
+        $earnedValue = 0;
+        $plannedValuePerTask = $budgetEstimate->budget_amount / $budgetEstimate->budgetCalculators->count();
+
+        foreach ($budgetEstimate->budgetCalculators as $budgetCalculator) {
+
+            if ($today >= $budgetCalculator->to_date) {
+
+                $earnedValue += $plannedValuePerTask;
+            } else if ($today >= $budgetCalculator->from_date) {
+
+                $totalDays = $budgetCalculator->from_date->diffInDays($budgetCalculator->to_date);
+                $completedDays = $budgetCalculator->from_date->diffInDays($today);
+
+                $completion = min(100, ($completedDays / $totalDays) * 100);
+                $earnedValue += ($plannedValuePerTask * $completion / 100);
+            }
+        }
+
+        return $earnedValue;
     }
 
     public function store(Request $request)
