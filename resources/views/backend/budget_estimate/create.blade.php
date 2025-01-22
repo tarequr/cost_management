@@ -61,9 +61,9 @@
                                 </div>
 
                                 <div class="form-group">
-                                    <label for="budget_amount">Budget Amount <sup class="text-danger">*</sup></label>
+                                    <label for="budget_amount">Planned Budget <sup class="text-danger">*</sup></label>
                                     <input type="number" id="budget_amount" name="budget_amount" class="form-control"
-                                        value="{{ old('budget_amount') }}" placeholder="Enter client name" autocomplete="off" required>
+                                        value="{{ old('budget_amount') }}" placeholder="Enter planned budget" autocomplete="off" required>
                                 </div>
 
                                 <div class="form-group">

@@ -30,6 +30,7 @@
                         <div class="d-flex justify-content-between p-3">
                             <div style="background-color: aliceblue; padding: 5px 15px;">
                                 <h4>{{ $budgetEstimate->project_name }}</h4>
+                                <p class="mb-0" style="font-size: 16px"><b>Planned Budget:</b> <span class="badge badge-primary">{{ $budgetEstimate->budget_amount }}</span></p>
                                 <p class="mb-0"><b>{{ $budgetEstimate->client_name }}</b> | <span class="text-uppercase">{{ date('M d, Y', strtotime($budgetEstimate->start_date)) }} - {{ date('M d, Y', strtotime($budgetEstimate->end_date)) }}</span></p>
                             </div>
                             <div>

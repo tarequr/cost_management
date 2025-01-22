@@ -35,7 +35,7 @@
                                         <th class="text-center">SL</th>
                                         <th class="text-center">Project Name</th>
                                         <th class="text-center">Clint Name</th>
-                                        <th class="text-center">Budget Amount</th>
+                                        <th class="text-center">Planned Budget</th>
                                         <th class="text-center">Project Period</th>
                                         <th class="text-center">Action</th>
                                     </tr>
