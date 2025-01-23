@@ -15,4 +15,9 @@ class BudgetCalculator extends Model
         'from_date' => 'datetime',
         'to_date' => 'datetime',
     ];
+
+    public function budgetEstimate()
+    {
+        return $this->belongsTo(BudgetEstimate::class);
+    }
 }

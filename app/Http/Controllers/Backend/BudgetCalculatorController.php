@@ -21,10 +21,19 @@ class BudgetCalculatorController extends Controller
 
         // Calculate budget metrics
         $plannedValue = $budgetEstimate->budget_amount;
-        $earnedValue = $this->calculateEarnedValue($budgetEstimate);
-        $actualCost = $totalCost;
-        $costVariance = $earnedValue - $actualCost;
-        $scheduleVariance = $earnedValue - $plannedValue;
+
+        $earnedValue = 0;
+        $actualCost = 0;
+        $costVariance = 0;
+        $scheduleVariance = 0;
+
+        if ($totalTasks > 0) {
+            $earnedValue = $this->calculateEarnedValue($budgetEstimate);
+            $actualCost = $totalCost;
+            $costVariance = $earnedValue - $actualCost;
+            $scheduleVariance = $earnedValue - $plannedValue;
+        }
+
         $bac = $budgetEstimate->budget_amount;
 
         return view('backend.budget_calculator.index', compact(
