@@ -73,6 +73,11 @@ class DashboardController extends Controller
             }
         }
 
+        // $budgetEstimates = BudgetEstimate::with('budgetCalculators')
+        //     ->where('user_id', auth()->id())
+        //     ->whereDoesntHave('budgetCalculators')
+        //     ->get();
+
         return [
             'labels' => ['Completed', 'In Progress', 'Not Started'],
             'values' => [$completed, $inProgress, $notStarted]

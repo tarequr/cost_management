@@ -34,7 +34,7 @@
                 </div>
 
                 <!-- Cost Variance Trend -->
-                <div class="col-md-12 mb-4">
+                {{-- <div class="col-md-12 mb-4">
                     <div class="card">
                         <div class="card-header">
                             <h5 class="card-title">Cost Variance Trend</h5>
@@ -43,7 +43,7 @@
                             <div id="costVarianceChart"></div>
                         </div>
                     </div>
-                </div>
+                </div> --}}
             </div>
         </div>
         <!-- container-fluid -->
