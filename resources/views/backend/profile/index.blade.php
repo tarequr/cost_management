@@ -33,7 +33,7 @@
     </div>
 
     <div class="row">
-        <div class="col-md-5 mx-auto">
+        <div class="col-md-5 mx-auto" style="margin-bottom: 100px;">
             <div class="main-card mb-3 card" style="padding: 10px;">
                 <div class="card-body p-0">
                     <div class="d-flex justify-content-center mb-2">
@@ -71,7 +71,7 @@
                                     <td>{{ $user->address }}</td>
                                 </tr>
                             @endif
-                            <tr>
+                            {{-- <tr>
                                 <th scope="row">Role: </th>
                                 <td>
                                     @if ($user->role)
@@ -90,7 +90,7 @@
                                         <span class="badge badge-danger">Inactive</span>
                                     @endif
                                 </td>
-                            </tr>
+                            </tr> --}}
                             <tr>
                                 <th scope="row">Last Modify At: </th>
                                 <td>{{ $user->updated_at ? $user->updated_at->diffForHumans() : 'No modify' }}</td>
