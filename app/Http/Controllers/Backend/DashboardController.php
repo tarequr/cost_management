@@ -31,7 +31,7 @@ class DashboardController extends Controller
     {
         $projects = BudgetEstimate::where('user_id', auth()->id())
             ->latest()
-            ->take(5)
+            // ->take(5)
             ->get();
 
         $data = [
@@ -68,15 +68,18 @@ class DashboardController extends Controller
                 $completed++;
             } elseif ($today >= $startDate && $today <= $endDate) {
                 $inProgress++;
-            } else {
-                $notStarted++;
             }
+            // else {
+            //     $notStarted++;
+            // }
         }
 
-        // $budgetEstimates = BudgetEstimate::with('budgetCalculators')
-        //     ->where('user_id', auth()->id())
-        //     ->whereDoesntHave('budgetCalculators')
-        //     ->get();
+        $notStarted = BudgetEstimate::with('budgetCalculators')
+            ->where('user_id', auth()->id())
+            ->whereDoesntHave('budgetCalculators')
+            ->count();
+
+            // dd($notStarted);
 
         return [
             'labels' => ['Completed', 'In Progress', 'Not Started'],
