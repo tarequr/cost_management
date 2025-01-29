@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Backend\ProfileController;
 use App\Http\Controllers\Backend\DashboardController;
 
 /*
@@ -19,4 +20,12 @@ Auth::routes();
 
 Route::group(['middleware' => 'auth'], function () {
     Route::get('home', [DashboardController::class, 'index'])->name('dashboard');
+
+    Route::controller(ProfileController::class)->group(function () {
+        Route::get('profile','index')->name('profile');
+        Route::get('profile/edit','edit')->name('profile.edit');
+        Route::post('profile/update','update')->name('profile.update');
+        Route::get('/change-password', 'changePassword')->name('change.password');
+        Route::post('/password/update', 'passwordUpdate')->name('password.change.update');
+    });
 });
