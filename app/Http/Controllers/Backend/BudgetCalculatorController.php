@@ -36,6 +36,12 @@ class BudgetCalculatorController extends Controller
 
         $bac = $budgetEstimate->budget_amount;
 
+        $isNullBudgetCalculators = BudgetEstimate::with('budgetCalculators')
+            ->where('id', $budgetEstimate->id)
+            ->where('user_id', auth()->id())
+            ->whereDoesntHave('budgetCalculators')
+            ->count();
+
         return view('backend.budget_calculator.index', compact(
             'budgetEstimate',
             'budgetCalculators',
@@ -46,7 +52,8 @@ class BudgetCalculatorController extends Controller
             'actualCost',
             'costVariance',
             'scheduleVariance',
-            'bac'
+            'bac',
+            'isNullBudgetCalculators'
         ));
     }
 

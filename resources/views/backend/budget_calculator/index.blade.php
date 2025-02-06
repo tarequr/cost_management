@@ -125,32 +125,34 @@
                                     <span class="text-muted text-uppercase">BAC :</span>
                                     <p class="h4 font-weight-bold mb-0">{{ ceil($bac) }}</p>
                                 </div> --}}
-                                <div class="col-12">
-                                    <span class="text-muted text-uppercase">CV :</span>
-                                    {{-- <p class="h4 font-weight-bold mb-0">{{ ceil($costVariance) }}</p> --}}
-                                    <p class="h6 font-weight-bold mb-0">
-                                        @if (ceil($costVariance) > 0)
-                                            <span class="text-success">Your Project is Under Budget</span>
-                                        @elseif ($totalCost == $plannedValue)
-                                            <span class="text-primary">Your Project is on Budget</span>
-                                        @else
-                                            <span class="text-danger">Your Project is Over Budget</span>
-                                        @endif
-                                    </p>
-                                </div>
-                                <div class="col-12">
-                                    <span class="text-muted text-uppercase">SV :</span>
-                                    {{-- <p class="h4 font-weight-bold mb-0">{{ ceil($scheduleVariance) }}</p> --}}
-                                    <p class="h6 font-weight-bold mb-0">
-                                        @if (ceil($scheduleVariance) > 0)
-                                            <span class="text-success">Your project is ahead of the schedule</span>
-                                        @elseif (ceil($scheduleVariance) == 0)
-                                            <span class="text-primary">You project is on the schedule</span>
-                                        @else
-                                            <span class="text-danger">Your project is behind the schedule</span>
-                                        @endif
-                                    </p>
-                                </div>
+                                @if (!$isNullBudgetCalculators)
+                                    <div class="col-12">
+                                        <span class="text-muted text-uppercase">Budget :</span>
+                                        {{-- <p class="h4 font-weight-bold mb-0">{{ ceil($costVariance) }}</p> --}}
+                                        <p class="h6 font-weight-bold mb-0">
+                                            @if (ceil($costVariance) > 0)
+                                                <span class="text-success">Your Project is Under Budget</span>
+                                            @elseif ($totalCost == $plannedValue)
+                                                <span class="text-primary">Your Project is on Budget</span>
+                                            @else
+                                                <span class="text-danger">Your Project is Over Budget</span>
+                                            @endif
+                                        </p>
+                                    </div>
+                                    <div class="col-12">
+                                        <span class="text-muted text-uppercase">Schedule :</span>
+                                        {{-- <p class="h4 font-weight-bold mb-0">{{ ceil($scheduleVariance) }}</p> --}}
+                                        <p class="h6 font-weight-bold mb-0">
+                                            @if (ceil($scheduleVariance) > 0)
+                                                <span class="text-success">Your project is ahead of the schedule</span>
+                                            @elseif (ceil($scheduleVariance) == 0)
+                                                <span class="text-primary">You project is on the schedule</span>
+                                            @else
+                                                <span class="text-danger">Your project is behind the schedule</span>
+                                            @endif
+                                        </p>
+                                    </div>
+                                @endif
                             </div>
                         </div>
                     </div>
