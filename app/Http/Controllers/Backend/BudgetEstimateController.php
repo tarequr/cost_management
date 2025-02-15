@@ -106,6 +106,8 @@ class BudgetEstimateController extends Controller
      */
     public function destroy($id)
     {
-        //
+        BudgetEstimate::findOrFail($id)->delete();
+        notify()->success('Budget Estimate Deleted Successfully', 'Success');
+        return back();
     }
 }

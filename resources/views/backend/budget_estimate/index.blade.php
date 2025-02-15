@@ -56,6 +56,17 @@
                                                     <i class="fa fa-calculator"></i>
                                                      Calculate
                                                 </a>
+
+                                                <div class="d-inline-block">
+                                                    <form action="{{ route('budget-estimate.destroy', $budgetEstimate->id) }}" method="POST">
+                                                        @csrf
+                                                        @method('DELETE')
+
+                                                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete?')">
+                                                            <i class="fa fa-trash"></i>
+                                                        </button>
+                                                    </form>
+                                                </div>
                                             </td>
                                         </tr>
                                     @endforeach
