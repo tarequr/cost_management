@@ -131,11 +131,11 @@
                                         {{-- <p class="h4 font-weight-bold mb-0">{{ ceil($costVariance) }}</p> --}}
                                         <p class="h6 font-weight-bold mb-0">
                                             @if (ceil($costVariance) > 0)
-                                                <span class="text-success">Your Project is Under Budget</span>
+                                                <span class="text-success">Your project is under budget</span>
                                             @elseif ($totalCost == $plannedValue)
-                                                <span class="text-primary">Your Project is on Budget</span>
+                                                <span class="text-primary">Your project is on budget</span>
                                             @else
-                                                <span class="text-danger">Your Project is Over Budget</span>
+                                                <span class="text-danger">Your project is over budget</span>
                                             @endif
                                         </p>
                                     </div>
