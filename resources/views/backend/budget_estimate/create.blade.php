@@ -122,10 +122,10 @@
                 const startDate = $('#start_date').val();
                 const endDate = $(this).val();
 
-                if (new Date(endDate) < new Date(startDate)) {
-                    alert('End Date cannot be earlier than Start Date.');
-                    $(this).val('');
-                }
+                // if (new Date(endDate) < new Date(startDate)) {
+                //     alert('End Date cannot be earlier than Start Date.');
+                //     $(this).val('');
+                // }
             });
 
             // Form Validation on Submit
