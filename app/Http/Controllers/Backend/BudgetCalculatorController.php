@@ -119,4 +119,11 @@ class BudgetCalculatorController extends Controller
 
         return back();
     }
+
+    public function delete(Request $request)
+    {
+        BudgetCalculator::findOrFail($request->id)->delete();
+        notify()->success('Budget Calculator Deleted Successfully', 'Success');
+        return back();
+    }
 }

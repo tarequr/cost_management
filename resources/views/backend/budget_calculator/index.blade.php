@@ -57,6 +57,7 @@
                                         <th class="text-center">Date</th>
                                         <th class="text-center">Rate</th>
                                         <th class="text-center">Cost</th>
+                                        <th class="text-center">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody class="text-center">
@@ -70,10 +71,21 @@
                                                 @if ($budgetCalculator->rate == 'fixed')
                                                     <span class="text-uppercase">Fixed</span>
                                                 @else
-                                                    <span class="text-uppercase">Hourly - ({{ $budgetCalculator->hourly_rate.' Rate' }} * {{ $budgetCalculator->number_of_hours. ' Hours' }})</span>
+                                                    <span class="text-uppercase">Hourly - ({{ $budgetCalculator->hourly_rate.' Rate' }} * {{ $budgetCalculator->number_of_hours. ' Hours' }}) = {{ $budgetCalculator->hourly_rate * $budgetCalculator->number_of_hours }}</span>
                                                 @endif
                                             </td>
                                             <td>TK {{ $budgetCalculator->total }}</td>
+                                            <td>
+                                                <form action="{{ route('budget-calculator.delete') }}" method="POST">
+                                                    @csrf
+                                                    @method('DELETE')
+
+                                                    <input type="hidden" name="id" value="{{ $budgetCalculator->id }}">
+                                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete?')">
+                                                        <i class="fa fa-trash"></i>
+                                                    </button>
+                                                </form>
+                                            </td>
                                         </tr>
                                     @endforeach
                                 </tbody>
