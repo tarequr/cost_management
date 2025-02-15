@@ -41,11 +41,14 @@
                                     </span>
                                 </p>
                             </div>
-                            <div>
-                                <a href="javascript:void(0);" class="btn btn-primary" data-toggle="modal" data-target="#addModal">
-                                    <i class="fa fa-plus-circle"></i>
-                                </a>
-                            </div>
+
+                            @if (!$budgetEstimate->is_project_finalized)
+                                <div>
+                                    <a href="javascript:void(0);" class="btn btn-primary" data-toggle="modal" data-target="#addModal">
+                                        <i class="fa fa-plus-circle"></i>
+                                    </a>
+                                </div>
+                            @endif
                         </div>
 
                         <div class="card-body">
@@ -57,7 +60,9 @@
                                         <th class="text-center">Date</th>
                                         <th class="text-center">Rate</th>
                                         <th class="text-center">Cost</th>
+                                        @if (!$budgetEstimate->is_project_finalized)
                                         <th class="text-center">Action</th>
+                                        @endif
                                     </tr>
                                 </thead>
                                 <tbody class="text-center">
@@ -75,6 +80,7 @@
                                                 @endif
                                             </td>
                                             <td>TK {{ $budgetCalculator->total }}</td>
+                                            @if (!$budgetEstimate->is_project_finalized)
                                             <td>
                                                 <form action="{{ route('budget-calculator.delete') }}" method="POST">
                                                     @csrf
@@ -86,6 +92,7 @@
                                                     </button>
                                                 </form>
                                             </td>
+                                            @endif
                                         </tr>
                                     @endforeach
                                 </tbody>
@@ -235,6 +242,15 @@
                             <input type="number" class="form-control" name="number_of_hours" id="number_of_hours" placeholder="Enter number of hours">
                         </div>
                     </div>
+
+                    <div class="form-group">
+                        <div class="custom-control custom-switch" style="margin-left: 15px">
+                            <input type="checkbox" class="custom-control-input" name="is_project_finalized"
+                                id="is_project_finalized">
+                            <label class="custom-control-label" for="is_project_finalized">Is Project Finalized?</label>
+                        </div>
+                    </div>
+
                     <div class="modal-footer">
                         <button type="submit" class="btn btn-primary">Save</button>
                     </div>

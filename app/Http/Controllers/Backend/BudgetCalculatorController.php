@@ -99,6 +99,10 @@ class BudgetCalculatorController extends Controller
                 ? ($request->fixed_rate ?? 0)
                 : (($request->hourly_rate ?? 0) * ($request->number_of_hours ?? 0) * $numberOfDays);
 
+            BudgetEstimate::findOrFail($request->budget_estimate_id)->update([
+                'is_project_finalized' => $request->filled('is_project_finalized'),
+            ]);
+
             BudgetCalculator::create([
                 'budget_estimate_id' => $request->budget_estimate_id,
                 'task_name' => $request->task_name,
