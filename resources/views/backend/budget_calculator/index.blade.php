@@ -70,7 +70,7 @@
                                                 @if ($budgetCalculator->rate == 'fixed')
                                                     <span class="text-uppercase">Fixed</span>
                                                 @else
-                                                    <span class="text-uppercase">Hourly - ({{ $budgetCalculator->hourly_rate.' hours' }} * {{ $budgetCalculator->number_of_hours. ' Rate' }})</span>
+                                                    <span class="text-uppercase">Hourly - ({{ $budgetCalculator->hourly_rate.' Rate' }} * {{ $budgetCalculator->number_of_hours. ' Hours' }})</span>
                                                 @endif
                                             </td>
                                             <td>TK {{ $budgetCalculator->total }}</td>
@@ -89,7 +89,7 @@
 
                             <div class="mb-4">
                                 <span class="text-muted text-uppercase">Summary</span>
-                                <p class="h2 font-weight-bold text-success mb-0">TK {{ $totalCost ? $totalCost : '00:00' }}</p>
+                                <p class="h2 font-weight-bold text-success mb-0">TK {{ $totalCost ? $totalCost : '00.00' }}</p>
                             </div>
 
                             <div class="row mb-4">
