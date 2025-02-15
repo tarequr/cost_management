@@ -89,7 +89,7 @@
 
                             <div class="mb-4">
                                 <span class="text-muted text-uppercase">Summary</span>
-                                <p class="h2 font-weight-bold text-success mb-0">TK {{ $totalCost ? $totalCost : '00.00' }}</p>
+                                <p class="h2 font-weight-bold text-success mb-0">TK {{ $totalCost ? $totalCost : '00' }}</p>
                             </div>
 
                             <div class="row mb-4">
