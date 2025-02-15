@@ -90,10 +90,14 @@ class BudgetCalculatorController extends Controller
         ]);
 
         try {
+            $fromDate = Carbon::parse($request->from_date);
+            $toDate = Carbon::parse($request->to_date);
+
+            $numberOfDays = $fromDate->diffInDays($toDate) + 1;
 
             $totalRate = $request->rate === 'fixed'
-            ? $request->fixed_rate
-            : $request->hourly_rate * $request->number_of_hours;
+                ? ($request->fixed_rate ?? 0)
+                : (($request->hourly_rate ?? 0) * ($request->number_of_hours ?? 0) * $numberOfDays);
 
             BudgetCalculator::create([
                 'budget_estimate_id' => $request->budget_estimate_id,
