@@ -62,16 +62,13 @@ class AuthOtpController extends Controller
 
     public function index()
     {
-        // dd("Welcome to AuthOtpController");
-        dd(session()->all());
         $otp_id = Session::get('user_OTP_id');
         $userOtp = UserOtp::findOrFail($otp_id);
 
-        $maskedNumber = substr_replace($userOtp->phone, '****', 5, 4);
-        // $formattedNumber = $bdCode . $maskedNumber;
-        $formattedNumber = $maskedNumber;
         $expirationTime = $userOtp->expire_at;
-        $message = "Verification code sent to your mail address " . $formattedNumber;
+        $message = "Verification code sent to your mail address " . $userOtp->email;
+
+        // dd($userOtp, $expirationTime, $message);
 
         return view('auth.register_otp', compact('message', 'userOtp', 'expirationTime'));
     }
