@@ -87,7 +87,6 @@ class AuthOtpController extends Controller
 
     public function checkVarification(Request $request)
     {
-        // dd($request->all());
         $user = Session::get('user_data');
         $password = $user['password'];
         $userOtp = UserOtp::findOrFail($request->id);
@@ -96,38 +95,30 @@ class AuthOtpController extends Controller
         if ($request->otp_digit == $userOtp->otp) {
             // dd($user);
             $user = User::create([
-                'role_id' => 2,
                 'name' => $user['name'],
                 'email' => $user['email'],
-                'contact_person' => $user['contact_person'],
-                'designation' => $user['designation'],
-                'phone' => $user['phone'],
-                'tin' => $user['tin'],
-                'bin' => $user['bin'],
                 'password' => Hash::make($password)
             ]);
             $userOtp->update([
                 'varified' => 1,
             ]);
 
-            UserDetail::create([
-                'user_id' => $user->id,
-                'forwarding_division' => $user['division']
-            ]);
+            // $testMailData = [
+            //     'title' => 'Registration Verification',
+            //     'body' => 'This is Registration Verification',
+            //     'name' => $user['name'],
+            //     'email' => $user['email'],
+            //     'password' => $password,
+            //     // 'reset_link' => $resetPasswordLink
+            // ];
+            // Mail::to($testMailData['email'])->send(new SendMail($testMailData));
 
-            // $token = Password::createToken($user);
-            // $resetPasswordLink = route('password.reset', ['token' => $token]). '?email=' . urlencode($userInfo->email);
-            // dd($resetPasswordLink);
-            $testMailData = [
-                'title' => 'Registration Verification',
-                'body' => 'This is Registration Verification',
-                'name' => $user['name'],
-                'email' => $user['email'],
-                'password' => $password,
-                // 'reset_link' => $resetPasswordLink
-            ];
-            Mail::to($testMailData['email'])->send(new SendMail($testMailData));
 
+            // Send Registration Verification Email
+            // Mail::raw("Registration Verification\n\nThis is your registration verification.\n\nName: {$user['name']}\nEmail: {$user['email']}\nPassword: {$password}", function ($message) use ($user) {
+            //     $message->to($user['email'])
+            //             ->subject('Registration Verification');
+            // });
 
 
             Session::put('email', $user['email']);

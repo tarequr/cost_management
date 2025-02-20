@@ -23,6 +23,6 @@ Route::controller(AuthOtpController::class)->group(function () {
     Route::post('/otp-generate', 'generateOtp')->name('otp.generate');
     Route::get('/otp-generate', 'verifyOtp')->name('register.otp.verify');
     Route::post('/otp-verification-check', 'checkVarification')->name('check.otp.verification');
-    Route::get('/check-email', 'checkEmail')->name('email.check');
+    // Route::get('/check-email', 'checkEmail')->name('email.check');
     Route::post('otp-resend', 'resend')->name('otp.resend');
 });

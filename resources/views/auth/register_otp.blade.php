@@ -5,6 +5,7 @@
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Cost Management</title>
     <meta content="Responsive admin theme build on top of Bootstrap 4" name="description"/>
     <meta content="Themesdesign" name="author" />
@@ -176,36 +177,40 @@
             updateTimer();
         });
 
+        $('#verifyOtp').click(function () {
+            const otp_digit = $('#otp_input').val();
+            const id = "{{ $userOtp->id }}";
+            const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
-        $('#verifyOtp').click(function() {
-            var otp_digit = $('#otp_input').val()
-            var id = "{{ $userOtp->id }}"
-
-            if (otp_digit != null && otp_digit != '') {
-
-                $('#loader').removeClass('d-none')
-
-                $.ajax({
-                    url: "{{ route('check.otp.verification') }}",
-                    type: 'post',
-                    data: {
-                        otp_digit: otp_digit,
-                        id: id
-                    },
-                    success: function(data) {
-                        $('#loader').addClass('d-none')
-                        console.log(data);
-                        window.location.href = '/check-email';
-                    },
-                    error: function(error) {
-                        console.log('something went wrong', +error);
-                        $('#error_otp').html('Not Matched!');
-                    }
-                });
-            } else {
-                $('#error_otp').html('Please input your valid otp');
+            if (!otp_digit) {
+                $('#error_otp').html('Please input your valid OTP');
+                return;
             }
+
+            $('#loader').removeClass('d-none');
+
+            $.ajax({
+                url: "{{ route('check.otp.verification') }}",
+                type: 'POST',
+                data: {
+                    _token: csrfToken,
+                    otp_digit,
+                    id
+                },
+                success: function (data) {
+                    $('#loader').addClass('d-none');
+                    console.log(data);
+                    window.location.href = '/login';
+                },
+                error: function (error) {
+                    $('#loader').addClass('d-none');
+                    console.error('Something went wrong:', error);
+                    $('#error_otp').html('Not Matched!');
+                }
+            });
         });
+
+
     </script>
 </body>
 
