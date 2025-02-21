@@ -200,7 +200,7 @@
                 success: function (data) {
                     $('#loader').addClass('d-none');
                     console.log(data);
-                    window.location.href = '/login';
+                    window.location.href = '/email/verified';
                 },
                 error: function (error) {
                     $('#loader').addClass('d-none');

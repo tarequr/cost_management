@@ -68,22 +68,13 @@ class AuthOtpController extends Controller
         $expirationTime = $userOtp->expire_at;
         $message = "Verification code sent to your mail address " . $userOtp->email;
 
-        // dd($userOtp, $expirationTime, $message);
-
         return view('auth.register_otp', compact('message', 'userOtp', 'expirationTime'));
     }
-
-
-    /* ________________________________User Registration_____________________________________ */
-
-    /*________________________________________OTP Verification Form View   _________________________________*/
 
     public function verifyOtp()
     {
         return view('auth.register_otp');
     }
-
-    /* ___________________________________________Check Varification and Save Data ___________________________________*/
 
     public function checkVarification(Request $request)
     {
@@ -93,15 +84,13 @@ class AuthOtpController extends Controller
 
 
         if ($request->otp_digit == $userOtp->otp) {
-            // dd($user);
             $user = User::create([
                 'name' => $user['name'],
                 'email' => $user['email'],
                 'password' => Hash::make($password)
             ]);
-            $userOtp->update([
-                'varified' => 1,
-            ]);
+
+            $userOtp->update(['varified' => 1]);
 
             // $testMailData = [
             //     'title' => 'Registration Verification',
@@ -122,47 +111,16 @@ class AuthOtpController extends Controller
 
 
             Session::put('email', $user['email']);
-            Session::forget('user_data');
-            Session::forget('user_OTP_id');
+            Session::forget(['user_data', 'user_OTP_id']);
 
-            // return redirect()->route('email.check')->with(['email' => $user['email']]);
             return response()->json(['message' => 'success'], 200);
-        } else {
-            return response()->json(['message' => 'OTP not matched'], 404);
         }
+
+        return response()->json(['message' => 'OTP not matched'], 404);
     }
-
-    /*______________________________________________Email Ckeck View _______________________________________*/
-
-    public function checkEmail()
-    {
-        $verifyAuthEmail = Session::get('email');
-        $email = substr_replace($verifyAuthEmail, '****', 3, 4);
-        return view('auth.email_check', compact('email'));
-    }
-
-    /* ___________________________________________SMS API _______________________________________________ */
-
-    // protected function sendSms($phoneno, $messageBody)
-    // {
-
-    //     $url = "http://103.53.84.15:8746/sendtext?apikey=65cd109fd5735a24&secretkey=c52ff920&callerID=8801847&toUser=88" . $phoneno . "&messageContent=" . urlencode($messageBody);
-    //     return Self::smsApi($url);
-    // }
-
-    // protected function smsApi($url)
-    // {
-    //     $curl = curl_init();
-    //     curl_setopt($curl, CURLOPT_URL, $url);
-    //     curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-    //     $response = curl_exec($curl);
-    //     curl_close($curl);
-    //     return json_decode($response, true);
-    // }
 
     public function resend(Request $request)
     {
-        // dd($request->all());
         try {
             $otp = rand(100000, 999999);
             $userOtp = UserOtp::findOrFail($request->id);
@@ -173,19 +131,25 @@ class AuthOtpController extends Controller
                 'expire_at' => $expiredTime,
             ]);
 
-            $messageBody = 'আপনার otp কোড হল ' . $otp . ', কোডটির মেয়াদ ৩ মিনিটের মধ্যে শেষ হয়ে যাবে। অন্যদের সাথে আপনার otp শেয়ার করবেন না দয়া করে।\n' .
-                'website:' . route('frontend.home') . '\n' .
-                'contact:  8802-222223458 ';
+            // Send OTP via email
+            Mail::raw("Your OTP is: $otp. It is valid for 3 minutes.", function ($message) use ($userOtp) {
+                $message->to($userOtp->email)
+                        ->subject('Your OTP Code');
+            });
 
-            $cleaned_number = str_replace("+88", "", $userOtp->phone);
-            sendSms($cleaned_number, $messageBody);
-
-            $curentRoute = Route::getFacadeRoot()->current()->uri();
-            return redirect()->route('otp.index', ['auth' => session()->get('user_data.name'), 'returnUrl' => $curentRoute]);
+            return redirect()->route('otp.index', [
+                'auth' => session()->get('user_data.name'),
+                'returnUrl' => Route::getFacadeRoot()->current()->uri()
+            ]);
         } catch (\Throwable $th) {
             Log::error($th->getMessage());
             notify()->error('Something Went', 'Error');
             return back();
         }
+    }
+
+    public function verified()
+    {
+        return view('auth.email_verified');
     }
 }
