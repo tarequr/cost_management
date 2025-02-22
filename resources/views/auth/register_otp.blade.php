@@ -100,7 +100,7 @@
                                     <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                                     <span class="visually-hidden">Loading...</span>
                                 </div>
-                                Verify
+                                <span id="verify_btn">Verify</span>
                             </button>
                         </div>
                     @endif
