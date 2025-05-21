@@ -40,9 +40,9 @@ class BudgetEstimateController extends Controller
     {
         $request->validate([
             'project_name' => 'required',
-            'budget_amount' => 'required|integer',
-            'start_date' => 'required',
-            'end_date' => 'required',
+            // 'budget_amount' => 'required|integer',
+            // 'start_date' => 'required',
+            // 'end_date' => 'required',
         ]);
 
         try {
@@ -50,9 +50,9 @@ class BudgetEstimateController extends Controller
                 'user_id' => auth()->user()->id,
                 'project_name' => $request->project_name,
                 'client_name' => $request->client_name,
-                'budget_amount' => intval($request->budget_amount),
-                'start_date' => $request->start_date,
-                'end_date' => $request->end_date,
+                // 'budget_amount' => intval($request->budget_amount),
+                // 'start_date' => $request->start_date,
+                // 'end_date' => $request->end_date,
             ]);
 
             notify()->success('Budget Estimate Created Successfully', 'Success');

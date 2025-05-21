@@ -19,11 +19,11 @@ return new class extends Migration
             $table->string('task_name')->nullable();
             $table->date('from_date')->nullable();
             $table->date('to_date')->nullable();
-            $table->enum('rate', ['fixed', 'hourly'])->nullable();
+            // $table->enum('rate', ['fixed', 'hourly'])->nullable();
             $table->integer('fixed_rate')->nullable();
-            $table->integer('hourly_rate')->nullable();
-            $table->integer('number_of_hours')->nullable();
-            $table->integer('total')->nullable();
+            // $table->integer('hourly_rate')->nullable();
+            // $table->integer('number_of_hours')->nullable();
+            // $table->integer('total')->nullable();
             $table->timestamps();
         });
     }

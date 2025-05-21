@@ -60,7 +60,7 @@
                                         value="{{ old('client_name') }}" placeholder="Enter client name" autocomplete="off">
                                 </div>
 
-                                <div class="form-group">
+                                {{-- <div class="form-group">
                                     <label for="budget_amount">Planned Budget <sup class="text-danger">*</sup></label>
                                     <input type="number" id="budget_amount" name="budget_amount" class="form-control"
                                         value="{{ old('budget_amount') }}" placeholder="Enter planned budget" autocomplete="off" required>
@@ -82,7 +82,7 @@
                                     @error('end_date')
                                         <span class="text-danger">{{ $message }}</span>
                                     @enderror
-                                </div>
+                                </div> --}}
 
                                 <div class="form-group text-center">
                                     <button type="submit" class="btn btn-primary">
@@ -104,46 +104,46 @@
 @push('js')
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Dropify/0.2.2/js/dropify.min.js"></script>
     <script>
-        $(document).ready(function() {
-            // Initialize Dropify
-            $('.dropify').dropify();
+        // $(document).ready(function() {
+        //     // Initialize Dropify
+        //     $('.dropify').dropify();
 
-            // Start and End Date Validation
-            $('#start_date').on('change', function() {
-                const startDate = $(this).val();
-                if (startDate) {
-                    $('#end_date').prop('disabled', false).attr('min', startDate);
-                } else {
-                    $('#end_date').prop('disabled', true).val('');
-                }
-            });
+        //     // Start and End Date Validation
+        //     $('#start_date').on('change', function() {
+        //         const startDate = $(this).val();
+        //         if (startDate) {
+        //             $('#end_date').prop('disabled', false).attr('min', startDate);
+        //         } else {
+        //             $('#end_date').prop('disabled', true).val('');
+        //         }
+        //     });
 
-            $('#end_date').on('change', function() {
-                const startDate = $('#start_date').val();
-                const endDate = $(this).val();
+        //     $('#end_date').on('change', function() {
+        //         const startDate = $('#start_date').val();
+        //         const endDate = $(this).val();
 
-                // if (new Date(endDate) < new Date(startDate)) {
-                //     alert('End Date cannot be earlier than Start Date.');
-                //     $(this).val('');
-                // }
-            });
+        //         // if (new Date(endDate) < new Date(startDate)) {
+        //         //     alert('End Date cannot be earlier than Start Date.');
+        //         //     $(this).val('');
+        //         // }
+        //     });
 
-            // Form Validation on Submit
-            $('#budgetForm').on('submit', function(event) {
-                const startDate = $('#start_date').val();
-                const endDate = $('#end_date').val();
+        //     // Form Validation on Submit
+        //     $('#budgetForm').on('submit', function(event) {
+        //         const startDate = $('#start_date').val();
+        //         const endDate = $('#end_date').val();
 
-                if (!startDate) {
-                    alert('Please select a Start Date.');
-                    event.preventDefault();
-                } else if (!endDate) {
-                    alert('Please select an End Date.');
-                    event.preventDefault();
-                } else if (new Date(endDate) < new Date(startDate)) {
-                    alert('End Date cannot be earlier than Start Date.');
-                    event.preventDefault();
-                }
-            });
-        });
+        //         if (!startDate) {
+        //             alert('Please select a Start Date.');
+        //             event.preventDefault();
+        //         } else if (!endDate) {
+        //             alert('Please select an End Date.');
+        //             event.preventDefault();
+        //         } else if (new Date(endDate) < new Date(startDate)) {
+        //             alert('End Date cannot be earlier than Start Date.');
+        //             event.preventDefault();
+        //         }
+        //     });
+        // });
     </script>
 @endpush

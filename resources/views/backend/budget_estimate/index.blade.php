@@ -35,8 +35,8 @@
                                         <th class="text-center">SL</th>
                                         <th class="text-center">Project Name</th>
                                         <th class="text-center">Clint Name</th>
-                                        <th class="text-center">Planned Budget</th>
-                                        <th class="text-center">Project Period</th>
+                                        {{-- <th class="text-center">Planned Budget</th>
+                                        <th class="text-center">Project Period</th> --}}
                                         <th class="text-center">Action</th>
                                     </tr>
                                 </thead>
@@ -46,10 +46,10 @@
                                             <td>{{ $loop->iteration }}</td>
                                             <td>{{ $budgetEstimate->project_name }}</td>
                                             <td>{{ $budgetEstimate->client_name }}</td>
-                                            <td>TK {{ $budgetEstimate->budget_amount }}</td>
+                                            {{-- <td>TK {{ $budgetEstimate->budget_amount }}</td>
                                             <td>
                                                 {{ $budgetEstimate->start_date->format('M d, Y') }} - {{ $budgetEstimate->end_date->format('M d, Y') }}
-                                            </td>
+                                            </td> --}}
                                             <td>
                                                 <a href="{{ route('budget-calculator.index', $budgetEstimate->id) }}"
                                                     class="btn btn-sm btn-success">
