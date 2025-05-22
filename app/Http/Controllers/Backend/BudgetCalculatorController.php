@@ -115,6 +115,9 @@ class BudgetCalculatorController extends Controller
                 'total' => $totalRate,
             ]);
 
+
+
+
             notify()->success('Budget Calculator Created Successfully', 'Success');
         } catch (\Throwable $th) {
             Log::error($th->getMessage());
