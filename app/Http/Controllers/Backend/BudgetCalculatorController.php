@@ -90,29 +90,31 @@ class BudgetCalculatorController extends Controller
         ]);
 
         try {
-            $fromDate = Carbon::parse($request->from_date);
-            $toDate = Carbon::parse($request->to_date);
+            // $fromDate = Carbon::parse($request->from_date);
+            // $toDate = Carbon::parse($request->to_date);
 
-            $numberOfDays = $fromDate->diffInDays($toDate) + 1;
+            // $numberOfDays = $fromDate->diffInDays($toDate) + 1;
 
-            $totalRate = $request->rate === 'fixed'
-                ? ($request->fixed_rate ?? 0)
-                : (($request->hourly_rate ?? 0) * ($request->number_of_hours ?? 0) * $numberOfDays);
+            // $totalRate = $request->rate === 'fixed'
+            //     ? ($request->fixed_rate ?? 0)
+            //     : (($request->hourly_rate ?? 0) * ($request->number_of_hours ?? 0) * $numberOfDays);
 
-            BudgetEstimate::findOrFail($request->budget_estimate_id)->update([
-                'is_project_finalized' => $request->filled('is_project_finalized'),
-            ]);
+            // BudgetEstimate::findOrFail($request->budget_estimate_id)->update([
+            //     'is_project_finalized' => $request->filled('is_project_finalized'),
+            // ]);
+
+
 
             BudgetCalculator::create([
                 'budget_estimate_id' => $request->budget_estimate_id,
                 'task_name' => $request->task_name,
                 'from_date' => $request->from_date,
                 'to_date' => $request->to_date, // Fixed `to_date` to use the correct input field
-                'rate' => $request->rate,
-                'fixed_rate' => $request->rate === 'fixed' ? $request->fixed_rate : null,
-                'hourly_rate' => $request->rate === 'hourly' ? $request->hourly_rate : null,
-                'number_of_hours' => $request->rate === 'hourly' ? $request->number_of_hours : null,
-                'total' => $totalRate,
+                'fixed_rate' => $request->fixed_rate,
+                // 'fixed_rate' => $request->rate === 'fixed' ? $request->fixed_rate : null,
+                // 'hourly_rate' => $request->rate === 'hourly' ? $request->hourly_rate : null,
+                // 'number_of_hours' => $request->rate === 'hourly' ? $request->number_of_hours : null,
+                // 'total' => $totalRate,
             ]);
 
 

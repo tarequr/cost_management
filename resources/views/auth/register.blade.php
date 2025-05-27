@@ -28,7 +28,8 @@
             <div class="card-body">
                 <h5 class="font-18 text-center">Registration Form</h5>
 
-                <form class="form-horizontal m-t-30" method="POST" action="{{ route('register') }}">
+                {{-- <form class="form-horizontal m-t-30" method="POST" action="{{ route('register') }}"> --}}
+                <form class="form-horizontal m-t-30" method="POST" action="{{ route('otp.generate') }}">
                     @csrf
 
                     <div class="form-group">
