@@ -18,6 +18,11 @@
                                 <i class="fa fa-arrow-left"></i>
                                 Back
                             </a>
+
+                            <a href="javascript:void(0);" class="btn btn-sm btn-warning" onclick="location.reload()">
+                                <i class="fa fa-rotate-right"></i>
+                                Refresh
+                            </a>
                         </ol>
                     </div>
                 </div> <!-- end row -->
@@ -43,7 +48,8 @@
                             </div>
                         </div>
 
-                        <form action="#" method="GET" class="row g-2 align-items-end">
+                        <form action="{{ route('budget.filter') }}" method="POST" class="row g-2 align-items-end">
+                            @csrf
 
                             <div class="col-md-3 pr-0">
                                 <label for="from_month" class="form-label">From Month <sup
