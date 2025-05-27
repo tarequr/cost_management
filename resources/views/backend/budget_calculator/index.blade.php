@@ -26,22 +26,64 @@
 
             <div class="row">
                 <div class="col-12">
-                    <div class="card m-b-30">
-                        <div class="d-flex justify-content-between p-3">
-                            <div style="background-color: aliceblue; padding: 5px 15px;">
-                                <h4>{{ $budgetEstimate->project_name }}</h4>
-                                <p class="mb-0">
-                                    <b>{{ $budgetEstimate->client_name ?? '' }}</b>
-                                </p>
+                    <div class="p-4 bg-white shadow-sm border rounded mb-4">
+                        <div class="d-flex justify-content-between align-items-start flex-wrap mb-3">
+                            <div>
+                                <h4 class="mb-1">{{ $budgetEstimate->project_name }}</h4>
+                                <p class="mb-0 text-muted"><strong>{{ $budgetEstimate->client_name ?? '' }}</strong></p>
                             </div>
 
-                            <div>
-                                <a href="javascript:void(0);" class="btn btn-primary" data-toggle="modal" data-target="#addModal">
-                                    <i class="fa fa-plus-circle"></i>
-                                </a>
+                            <div class="mt-3 mt-md-0">
+                                <div>
+                                    <a href="javascript:void(0);" class="btn btn-success" data-toggle="modal"
+                                        data-target="#addModal">
+                                        <i class="fa fa-plus-circle"></i> Add Task
+                                    </a>
+                                </div>
                             </div>
                         </div>
 
+                        <form action="#" method="GET" class="row g-2 align-items-end">
+
+                            <div class="col-md-3">
+                                <label for="from_month" class="form-label">From Month <sup
+                                        class="text-danger">*</sup></label>
+                                <select class="form-control" name="from_month" id="from_month" required>
+                                    <option value="">Select Month</option>
+                                    @for ($i = 1; $i <= 12; $i++)
+                                        <option value="{{ $i }}">
+                                            {{ DateTime::createFromFormat('!m', $i)->format('F') }}</option>
+                                    @endfor
+                                </select>
+                            </div>
+
+                            <div class="col-md-3">
+                                <label for="to_month" class="form-label">To Month</label>
+                                <select class="form-control" name="to_month" id="to_month">
+                                    <option value="">Select Month</option>
+                                    @for ($i = 1; $i <= 12; $i++)
+                                        <option value="{{ $i }}">
+                                            {{ DateTime::createFromFormat('!m', $i)->format('F') }}</option>
+                                    @endfor
+                                </select>
+                            </div>
+
+                            <div class="col-md-3">
+                                <label for="expected_amount" class="form-label">Expected Amount <sup
+                                        class="text-danger">*</sup></label>
+                                <input type="number" class="form-control" name="expected_amount" id="expected_amount"
+                                    placeholder="Expected Amount" required>
+                            </div>
+
+                            <div class="col-md-3 d-grid">
+                                <button type="submit" class="btn btn-outline-primary">
+                                    <i class="fa fa-search me-1"></i> Search
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="card m-b-30">
                         <div class="card-body">
                             <table class="table table-bordered dt-responsive nowrap"
                                 style="border-collapse: collapse; border-spacing: 0; width: 100%;">
@@ -61,10 +103,12 @@
                                         <tr>
                                             <td>{{ $budgetCalculator->task_name }}</td>
                                             <td>
-                                                <span class="text-uppercase">{{ date('d/m/Y', strtotime($budgetCalculator->from_date)) }}</span>
+                                                <span
+                                                    class="text-uppercase">{{ date('d/m/Y', strtotime($budgetCalculator->from_date)) }}</span>
                                             </td>
                                             <td>
-                                                <span class="text-uppercase">{{ date('d/m/Y', strtotime($budgetCalculator->to_date)) }}</span>
+                                                <span
+                                                    class="text-uppercase">{{ date('d/m/Y', strtotime($budgetCalculator->to_date)) }}</span>
                                             </td>
                                             <td>
                                                 {{ $budgetCalculator->fixed_rate }}
@@ -74,8 +118,10 @@
                                                     @csrf
                                                     @method('DELETE')
 
-                                                    <input type="hidden" name="id" value="{{ $budgetCalculator->id }}">
-                                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete?')">
+                                                    <input type="hidden" name="id"
+                                                        value="{{ $budgetCalculator->id }}">
+                                                    <button type="submit" class="btn btn-sm btn-danger"
+                                                        onclick="return confirm('Are you sure you want to delete?')">
                                                         <i class="fa fa-trash"></i>
                                                     </button>
                                                 </form>
@@ -95,7 +141,8 @@
     <!-- content -->
 
     <!-- Add Modal -->
-    <div class="modal fade" id="addModal" tabindex="-1" data-backdrop="static" role="dialog" aria-labelledby="addModalLabel" aria-hidden="true">
+    <div class="modal fade" id="addModal" tabindex="-1" data-backdrop="static" role="dialog"
+        aria-labelledby="addModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -113,17 +160,20 @@
                     <div class="modal-body">
                         <div class="form-group">
                             <label for="task_name" class="col-form-label">Task Name:</label>
-                            <input type="text" class="form-control" name="task_name" id="task_name" placeholder="Enter task name" required>
+                            <input type="text" class="form-control" name="task_name" id="task_name"
+                                placeholder="Enter task name" required>
                         </div>
 
                         <div class="form-group">
                             <label for="from_date" class="col-form-label">From Date:</label>
-                            <input type="date" class="form-control" name="from_date" id="from_date" min="{{ \Carbon\Carbon::parse($budgetEstimate->start_date)->format('Y-m-d') }}" required>
+                            <input type="date" class="form-control" name="from_date" id="from_date"
+                                min="{{ \Carbon\Carbon::parse($budgetEstimate->start_date)->format('Y-m-d') }}" required>
                         </div>
 
                         <div class="form-group">
                             <label for="to_date" class="col-form-label">To Date:</label>
-                            <input type="date" class="form-control" name="to_date" id="to_date" min="{{ \Carbon\Carbon::parse($budgetEstimate->start_date)->format('Y-m-d') }}" required>
+                            <input type="date" class="form-control" name="to_date" id="to_date"
+                                min="{{ \Carbon\Carbon::parse($budgetEstimate->start_date)->format('Y-m-d') }}" required>
                         </div>
 
                         {{-- <div class="form-group">
@@ -141,7 +191,8 @@
                         <!-- Fixed Rate Field -->
                         <div class="form-group" id="fixedRateGroup">
                             <label for="fixed_rate" class="col-form-label">Fixed Rate:</label>
-                            <input type="number" class="form-control" name="fixed_rate" id="fixed_rate" placeholder="Enter fixed rate">
+                            <input type="number" class="form-control" name="fixed_rate" id="fixed_rate"
+                                placeholder="Enter fixed rate">
                         </div>
 
                         {{-- <!-- Hourly Rate Fields -->
