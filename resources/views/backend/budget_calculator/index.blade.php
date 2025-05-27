@@ -45,7 +45,7 @@
 
                         <form action="#" method="GET" class="row g-2 align-items-end">
 
-                            <div class="col-md-3">
+                            <div class="col-md-3 pr-0">
                                 <label for="from_month" class="form-label">From Month <sup
                                         class="text-danger">*</sup></label>
                                 <select class="form-control" name="from_month" id="from_month" required>
@@ -57,7 +57,7 @@
                                 </select>
                             </div>
 
-                            <div class="col-md-3">
+                            <div class="col-md-3 pr-0">
                                 <label for="to_month" class="form-label">To Month</label>
                                 <select class="form-control" name="to_month" id="to_month">
                                     <option value="">Select Month</option>
@@ -68,7 +68,7 @@
                                 </select>
                             </div>
 
-                            <div class="col-md-3">
+                            <div class="col-md-3 pr-0">
                                 <label for="expected_amount" class="form-label">Expected Amount <sup
                                         class="text-danger">*</sup></label>
                                 <input type="number" class="form-control" name="expected_amount" id="expected_amount"
