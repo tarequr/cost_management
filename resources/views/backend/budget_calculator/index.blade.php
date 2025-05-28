@@ -51,6 +51,9 @@
                         <form action="{{ route('budget.filter') }}" method="POST" class="row g-2 align-items-end">
                             @csrf
 
+                            <input type="hidden" name="budget_estimate_id" value="{{ $budgetEstimate->id }}">
+
+
                             <div class="col-md-3 pr-0">
                                 <label for="from_month" class="form-label">From Month <sup
                                         class="text-danger">*</sup></label>
