@@ -78,10 +78,10 @@
                             </div>
 
                             <div class="col-md-3 pr-0">
-                                <label for="expected_amount" class="form-label">Expected Amount <sup
+                                <label for="expected_amount" class="form-label">Estimate Amount <sup
                                         class="text-danger">*</sup></label>
                                 <input type="number" class="form-control" name="expected_amount" id="expected_amount"
-                                    placeholder="Expected Amount" required>
+                                    placeholder="Estimate Amount" required>
                             </div>
 
                             <div class="col-md-3 d-grid">
