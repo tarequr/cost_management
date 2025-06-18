@@ -57,25 +57,14 @@
                             <div class="col-md-3 pr-0">
                                 <label for="from_month" class="form-label">From Month <sup
                                         class="text-danger">*</sup></label>
-                                <select class="form-control" name="from_month" id="from_month" required>
-                                    <option value="">Select Month</option>
-                                    @for ($i = 1; $i <= 12; $i++)
-                                        <option value="{{ $i }}">
-                                            {{ DateTime::createFromFormat('!m', $i)->format('F') }}</option>
-                                    @endfor
-                                </select>
+                                <input type="month" class="form-control" name="from_month" id="from_month" required>
                             </div>
 
                             <div class="col-md-3 pr-0">
                                 <label for="to_month" class="form-label">To Month</label>
-                                <select class="form-control" name="to_month" id="to_month">
-                                    <option value="">Select Month</option>
-                                    @for ($i = 1; $i <= 12; $i++)
-                                        <option value="{{ $i }}">
-                                            {{ DateTime::createFromFormat('!m', $i)->format('F') }}</option>
-                                    @endfor
-                                </select>
+                                <input type="month" class="form-control" name="to_month" id="to_month" disabled>
                             </div>
+
 
                             <div class="col-md-3 pr-0">
                                 <label for="expected_amount" class="form-label">Estimate Amount <sup
@@ -261,5 +250,25 @@
         //         }
         //     });
         // });
+
+        $(document).ready(function() {
+            $('#from_month').on('change', function() {
+                const fromMonth = $(this).val();
+
+                if (fromMonth) {
+                    // Enable to_month and set its min value
+                    $('#to_month').prop('disabled', false);
+                    $('#to_month').attr('min', fromMonth);
+
+                    // Optional: Clear to_month if it's less than from_month
+                    if ($('#to_month').val() && $('#to_month').val() < fromMonth) {
+                        $('#to_month').val('');
+                    }
+                } else {
+                    // If from_month is cleared
+                    $('#to_month').prop('disabled', true).val('');
+                }
+            });
+        });
     </script>
 @endpush
