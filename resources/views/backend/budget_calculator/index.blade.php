@@ -61,8 +61,8 @@
                             </div>
 
                             <div class="col-md-3 pr-0">
-                                <label for="to_month" class="form-label">To Month</label>
-                                <input type="month" class="form-control" name="to_month" id="to_month" disabled>
+                                <label for="to_month" class="form-label">To Month <sup class="text-danger">*</sup></label>
+                                <input type="month" class="form-control" name="to_month" id="to_month" required disabled>
                             </div>
 
 
