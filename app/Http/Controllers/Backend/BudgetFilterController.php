@@ -18,80 +18,19 @@ class BudgetFilterController extends Controller
             'budget_estimate_id' => ['required'],
         ]);
 
-        // dd($request->all());
+        $startRange = Carbon::createFromFormat('Y-m', $request->from_month)->startOfMonth(); // e.g. 2025‑05‑01 00:00:00
+        $endRange   = Carbon::createFromFormat('Y-m', $request->to_month)->endOfMonth();     // e.g. 2025‑08‑31 23:59:59
 
-        // $budgetEstimate = BudgetEstimate::findOrFail($request->budget_estimate_id);
-
-        // $year      = date('Y'); // or make this selectable
-        // $fromMonth = $request->from_month;
-        // $toMonth   = $request->to_month ?: $fromMonth;
-
-        // $tasks = BudgetCalculator::where('budget_estimate_id', $request->budget_estimate_id)
-        //     ->where(function ($query) use ($year, $fromMonth, $toMonth) {
-        //         $query->where(function ($subQuery) use ($year, $fromMonth, $toMonth) {
-        //             // Tasks that overlap with the selected month range
-        //             $subQuery->whereYear('from_date', $year)
-        //                 ->whereMonth('from_date', '<=', $toMonth)
-        //                 ->whereMonth('to_date', '>=', $fromMonth);
-        //         });
-        //     })->get();
-
-        // // dd($tasks);
-        // // dd('Waiting for calculation');
-
-        // $monthlyAmounts = [];
-        // $totalAmount    = 0;
-
-        // foreach ($tasks as $task) {
-        //     // Calculate for each month in the selected range
-        //     for ($month = $fromMonth; $month <= $toMonth; $month++) {
-        //         $amount = BudgetHelper::calculateMonthlyAmount(
-        //             $task->from_date,
-        //             $task->to_date,
-        //             $task->fixed_rate,
-        //             $month,
-        //             $year
-        //         );
-
-        //         if (! isset($monthlyAmounts[$month])) {
-        //             $monthlyAmounts[$month] = 0;
-        //         }
-        //         $monthlyAmounts[$month] += $amount;
-        //     }
-        // }
-
-        // $totalAmount = array_sum($monthlyAmounts);
-
-        // // dd($totalAmount, $monthlyAmounts);
-        // // dd('Waiting for calculation');
-
-        /* ---------------------------------------------------------------
-     | 2.  Parse the month strings into Carbon instances              |
-     * ------------------------------------------------------------- */
-        $startRange = Carbon::createFromFormat('Y-m', $request->from_month)
-            ->startOfMonth(); // e.g. 2025‑05‑01 00:00:00
-        $endRange = Carbon::createFromFormat('Y-m', $request->to_month)
-            ->endOfMonth(); // e.g. 2025‑08‑31 23:59:59
-
-        /* ---------------------------------------------------------------
-     | 3.  Fetch every task that overlaps the selected span           |
-     * ------------------------------------------------------------- */
         $tasks = BudgetCalculator::where('budget_estimate_id', $request->budget_estimate_id)
             ->whereDate('from_date', '<=', $endRange) // task starts before the span ends
             ->whereDate('to_date', '>=', $startRange) // task ends after the span starts
             ->get();
 
-        /* ---------------------------------------------------------------
-     | 4.  Pre‑seed an array for every month in the span              |
-     * ------------------------------------------------------------- */
         $monthlyAmounts = [];
         for ($cursor = $startRange->copy(); $cursor <= $endRange; $cursor->addMonth()) {
-            $monthlyAmounts[$cursor->format('Y-m')] = 0; // keys like “2025‑05”
+            $monthlyAmounts[$cursor->format('Y-m')] = 0;
         }
 
-        /* ---------------------------------------------------------------
-     | 5.  Run each task through your helper month‑by‑month           |
-     * ------------------------------------------------------------- */
         foreach ($tasks as $task) {
             for ($cursor = $startRange->copy(); $cursor <= $endRange; $cursor->addMonth()) {
 
@@ -108,6 +47,7 @@ class BudgetFilterController extends Controller
         }
 
         $totalAmount = array_sum($monthlyAmounts);
+
         dd($totalAmount, $monthlyAmounts);
         return view('backend.budget_calculator.filter_data', [
             'budgetCalculators' => $tasks,
