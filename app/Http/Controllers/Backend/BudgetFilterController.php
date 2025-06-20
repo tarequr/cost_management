@@ -48,13 +48,64 @@ class BudgetFilterController extends Controller
 
         $totalAmount = array_sum($monthlyAmounts);
 
-        dd($totalAmount, $monthlyAmounts);
+        // dd($totalAmount, $monthlyAmounts);
+
+        //Another section
+        $totalTasks = BudgetCalculator::where('budget_estimate_id', $request->budget_estimate_id)->get();
+
+        if ($totalTasks->isEmpty()) {
+            notify()->error('No tasks found for the selected budget estimate.', 'Error');
+            return back();
+        }
+
+        $projectStart = Carbon::parse($totalTasks->min('from_date'))->startOfMonth();
+        $projectEnd   = Carbon::parse($totalTasks->max('to_date'))->startOfMonth();
+
+        $selectedMonths = $startRange->diffInMonths($endRange) + 1; //input data
+
+        $totalProjectMonths = $projectStart->diffInMonths($projectEnd) + 1; //database data
+
+        $totalRate = $totalTasks->sum('fixed_rate');
+        // dd($startRange);
+
+        // dd($endRange, $projectStart);
+        // dd($endRange < $projectStart);
+        // // Check for overlap
+        // if ($endRange < $projectStart || $startRange > $projectEnd) {
+        //     dd('No overlap');
+        //     $message = 'Your selected time range does not match the project\'s time range. The project ran from ' .
+        //     $projectStart->format('F Y') . ' to ' . $projectEnd->format('F Y') . '.';
+
+        //     notify()->error($message, 'Error');
+        //     return back();
+        // }
+
+        $percentage = 0;
+        if ($totalProjectMonths > 0) {
+            $percentage = ($selectedMonths / $totalProjectMonths) * 100;
+        }
+
+        // dd($percentage);
+
+        $percentageRate = $totalRate * ($percentage / 100);
+
+        // dd($percentageRate);
+
+        $bac = $totalRate;                      // Budget at Completion
+        $pv  = (int) $request->expected_amount; // Planned Value
+        $ac  = $tasks->sum('fixed_rate');       // Actual Cost
+        $ev  = $percentageRate;                 // Earned Value
+        $cv  = $ev - $ac;                       // Cost Variance
+        $sv  = $ev - $pv;                       // Schedule Variance
+
+        dd($bac, 'PV:' . $pv, $ac, 'EV: ' . $ev, $cv, $sv);
+
         return view('backend.budget_calculator.filter_data', [
             'budgetCalculators' => $tasks,
             'monthlyAmounts'    => $monthlyAmounts,
             'totalAmount'       => $totalAmount,
-            // 'fromMonth'         => $fromMonth,
-            // 'toMonth'           => $toMonth,
+            'fromMonth'         => $startRange->format('Y-m'),
+            'toMonth'           => $endRange->format('Y-m'),
         ]);
     }
 }
