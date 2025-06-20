@@ -98,14 +98,21 @@ class BudgetFilterController extends Controller
         $cv  = $ev - $ac;                       // Cost Variance
         $sv  = $ev - $pv;                       // Schedule Variance
 
-        dd($bac, 'PV:' . $pv, $ac, 'EV: ' . $ev, $cv, $sv);
+        // dd($bac, 'PV:' . $pv, $ac, 'EV: ' . $ev, $cv, $sv);
 
         return view('backend.budget_calculator.filter_data', [
             'budgetCalculators' => $tasks,
             'monthlyAmounts'    => $monthlyAmounts,
             'totalAmount'       => $totalAmount,
-            'fromMonth'         => $startRange->format('Y-m'),
-            'toMonth'           => $endRange->format('Y-m'),
+            'fromMonth'         => $startRange->format('F Y'),
+            'toMonth'           => $endRange->format('F Y'),
+            'totalTasks'        => $totalTasks,
+            'bac'               => $bac,
+            'pv'                => $pv,
+            'ac'                => $ac,
+            'ev'                => $ev,
+            'cv'                => $cv,
+            'sv'                => $sv,
         ]);
     }
 }
