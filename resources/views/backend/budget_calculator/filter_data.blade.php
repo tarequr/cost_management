@@ -31,32 +31,29 @@
                             <h4 class="card-title text-primary mb-4 text-capitalize text-bold">Budget Calculator</h4>
 
                             <div class="mb-4">
-                                <span class="text-muted text-uppercase">Summary</span>
-                                <p class="h2 font-weight-bold text-success mb-0">TK
-                                </p>
+                                <span class="text-muted text-uppercase">Duration</span>
+                                <p class="font-weight-bold mb-0">{{ $fromMonth }} - {{ $toMonth }}</p>
                             </div>
 
                             <div class="row mb-4">
                                 <div class="col-6">
-                                    <span class="text-muted text-uppercase">Tasks</span>
-                                    <p class="h4 font-weight-bold mb-0">0</p>
+                                    <span class="text-muted text-uppercase">Estimate Amount</span>
+                                    <p class="h4 font-weight-bold mb-0">{{ number_format($pv) }}</p>
                                 </div>
 
                                 <div class="col-6">
-                                    <span class="text-muted text-uppercase">Weeks</span>
-                                    <p class="h4 font-weight-bold mb-0">
-                                        00
-                                    </p>
+                                    <span class="text-muted text-uppercase">Actual Cost</span>
+                                    <p class="h4 font-weight-bold mb-0">{{ number_format($ac) }}</p>
                                 </div>
                             </div>
 
-                            <div class="border-top pt-3">
+                            {{-- <div class="border-top pt-3">
                                 <span class="text-muted text-uppercase">Delivery Date</span>
                                 <p class="h5 font-weight-bold mb-0">
                                     <i class="bi bi-calendar text-primary me-2"></i>
                                     00
                                 </p>
-                            </div>
+                            </div> --}}
 
                             <div class="row mb-4 mt-2">
                                 {{-- <div class="col-12">
@@ -76,26 +73,26 @@
                                     <span class="text-muted text-uppercase">Budget :</span>
                                     {{-- <p class="h4 font-weight-bold mb-0">{{ ceil($costVariance) }}</p> --}}
                                     <p class="h6 font-weight-bold mb-0">
-                                        {{-- @if (ceil($costVariance) > 0) --}}
-                                        <span class="text-success">Your project is under budget</span>
-                                        {{-- @elseif ($totalCost == $plannedValue) --}}
-                                        <span class="text-primary">Your project is on budget</span>
-                                        {{-- @else --}}
-                                        <span class="text-danger">Your project is over budget</span>
-                                        {{-- @endif --}}
+                                        @if ($cv > 0)
+                                            <span class="text-success">Your project is under budget</span>
+                                        @elseif ($ac == $pv)
+                                            <span class="text-primary">Your project is on budget</span>
+                                        @else
+                                            <span class="text-danger">Your project is over budget</span>
+                                        @endif
                                     </p>
                                 </div>
                                 <div class="col-12">
                                     <span class="text-muted text-uppercase">Schedule :</span>
                                     {{-- <p class="h4 font-weight-bold mb-0">{{ ceil($scheduleVariance) }}</p> --}}
                                     <p class="h6 font-weight-bold mb-0">
-                                        {{-- @if (ceil($scheduleVariance) > 0) --}}
-                                        <span class="text-success">Your project is ahead of the schedule</span>
-                                        {{-- @elseif (ceil($scheduleVariance) == 0) --}}
-                                        <span class="text-primary">You project is on the schedule</span>
-                                        {{-- @else --}}
-                                        <span class="text-danger">Your project is behind the schedule</span>
-                                        {{-- @endif --}}
+                                        @if ($sv > 0)
+                                            <span class="text-success">Your project is ahead of the schedule</span>
+                                        @elseif ($sv == 0)
+                                            <span class="text-primary">You project is on the schedule</span>
+                                        @else
+                                            <span class="text-danger">Your project is behind the schedule</span>
+                                        @endif
                                     </p>
                                 </div>
                                 {{-- @endif --}}
