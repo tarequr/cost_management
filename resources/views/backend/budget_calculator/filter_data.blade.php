@@ -28,6 +28,31 @@
                 <div class="col-md-12">
                     <div class="card shadow-md border-0 mb-4">
                         <div class="card-body">
+                            <div class="chart-container">
+                                <canvas id="evChart"></canvas>
+                                <div class="legend">
+                                    <div class="legend-item">
+                                        <div class="legend-color" style="background-color: #2a4d69;"></div>
+                                        <div class="legend-text">BAC (Budget at Completion)</div>
+                                    </div>
+                                    <div class="legend-item">
+                                        <div class="legend-color" style="background-color: #4b86b4;"></div>
+                                        <div class="legend-text">PV (Planned Value)</div>
+                                    </div>
+                                    <div class="legend-item">
+                                        <div class="legend-color" style="background-color: #ff6b6b;"></div>
+                                        <div class="legend-text">AC (Actual Cost)</div>
+                                    </div>
+                                    <div class="legend-item">
+                                        <div class="legend-color" style="background-color: #51cf66;"></div>
+                                        <div class="legend-text">EV (Earned Value)</div>
+                                    </div>
+                                    <div class="legend-item">
+                                        <div class="legend-color" style="background-color: #ffd166;"></div>
+                                        <div class="legend-text">EAC (Estimate at Completion)</div>
+                                    </div>
+                                </div>
+                            </div>
                             <h4 class="card-title text-primary mb-4 text-capitalize text-bold">Budget Calculator</h4>
 
                             <div class="mb-4">
