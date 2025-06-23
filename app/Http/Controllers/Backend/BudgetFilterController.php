@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Backend;
 use App\Helpers\BudgetHelper;
 use App\Http\Controllers\Controller;
 use App\Models\BudgetCalculator;
+use App\Models\BudgetEstimate;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -17,6 +18,8 @@ class BudgetFilterController extends Controller
             'expected_amount'    => ['required', 'numeric'],
             'budget_estimate_id' => ['required'],
         ]);
+
+        $budgetEstimate = BudgetEstimate::findOrFail($request->budget_estimate_id);
 
         $startRange = Carbon::createFromFormat('Y-m', $request->from_month)->startOfMonth(); // e.g. 2025‑05‑01 00:00:00
         $endRange   = Carbon::createFromFormat('Y-m', $request->to_month)->endOfMonth();     // e.g. 2025‑08‑31 23:59:59
@@ -100,7 +103,33 @@ class BudgetFilterController extends Controller
 
         // dd($bac, 'PV:' . $pv, $ac, 'EV: ' . $ev, $cv, $sv);
 
+        $labels   = []; // ["May 2025", "Jun 2025", …]
+        $acSeries = []; // cumulative AC
+        $pvSeries = []; // cumulative PV
+        $evSeries = []; // cumulative EV
+
+        $cumAc      = $cumPv      = $cumEv      = 0;
+        $pvPerMonth = $pv / max(1, $selectedMonths);
+        $evPerMonth = $ev / max(1, $selectedMonths);
+
+        foreach ($monthlyAmounts as $ym => $acForThisMonth) {
+            $labels[] = Carbon::createFromFormat('Y-m', $ym)->format('M Y');
+
+            $cumAc += $acForThisMonth;
+            // $acSeries[] = round($cumAc, 2);
+            $acSeries[] = round($cumAc, );
+
+            $cumPv += $pvPerMonth;
+            $pvSeries[] = round($cumPv, 2);
+
+            $cumEv += $evPerMonth;
+            $evSeries[] = round($cumEv, 2);
+        }
+
+        // dd($labels, $acSeries, $pvSeries, $evSeries);
+
         return view('backend.budget_calculator.filter_data', [
+            'budgetEstimate'    => $budgetEstimate,
             'budgetCalculators' => $tasks,
             'monthlyAmounts'    => $monthlyAmounts,
             'totalAmount'       => $totalAmount,
@@ -113,6 +142,11 @@ class BudgetFilterController extends Controller
             'ev'                => $ev,
             'cv'                => $cv,
             'sv'                => $sv,
+
+            'chartLabels'       => $labels,
+            'chartAC'           => $acSeries,
+            'chartPV'           => $pvSeries,
+            'chartEV'           => $evSeries,
         ]);
     }
 }
