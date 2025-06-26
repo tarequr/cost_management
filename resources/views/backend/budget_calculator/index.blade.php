@@ -57,12 +57,12 @@
                             <div class="col-md-3 pr-0">
                                 <label for="from_month" class="form-label">From Month <sup
                                         class="text-danger">*</sup></label>
-                                <input type="month" class="form-control" name="from_month" id="from_month" required>
+                                <input type="month" class="form-control" name="from_month" id="from_month" min="{{ $minDate->format('Y-m') }}"  max="{{ $maxDate->format('Y-m') }}" required>
                             </div>
 
                             <div class="col-md-3 pr-0">
                                 <label for="to_month" class="form-label">To Month <sup class="text-danger">*</sup></label>
-                                <input type="month" class="form-control" name="to_month" id="to_month" required disabled>
+                                <input type="month" class="form-control" name="to_month" id="to_month" min="{{ $minDate->format('Y-m') }}" max="{{ $maxDate->format('Y-m') }}" required disabled>
                             </div>
 
 

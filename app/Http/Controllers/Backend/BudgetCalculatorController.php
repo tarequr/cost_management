@@ -42,6 +42,12 @@ class BudgetCalculatorController extends Controller
             ->whereDoesntHave('budgetCalculators')
             ->count();
 
+        $totalBudgetCalculators = BudgetCalculator::where('budget_estimate_id', $budgetEstimateID)->get();
+
+        $minDate = Carbon::parse($totalBudgetCalculators->min('from_date'))->startOfMonth();
+        $maxDate = Carbon::parse($totalBudgetCalculators->max('to_date'))->startOfMonth();
+
+        // dd($minDate, $maxDate);
         return view('backend.budget_calculator.index', compact(
             'budgetEstimate',
             'budgetCalculators',
@@ -53,7 +59,9 @@ class BudgetCalculatorController extends Controller
             'costVariance',
             'scheduleVariance',
             'bac',
-            'isNullBudgetCalculators'
+            'isNullBudgetCalculators',
+            'minDate',
+            'maxDate',
         ));
     }
 
