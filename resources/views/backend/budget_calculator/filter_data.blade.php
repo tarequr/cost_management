@@ -303,11 +303,19 @@
                                         <span class="text-muted text-uppercase">Budget :</span>
                                         {{-- <p class="h4 font-weight-bold mb-0">{{ ceil($costVariance) }}</p> --}}
                                         <p class="h6 font-weight-bold mb-0">
-                                            @if ($cv > 0)
+                                            {{-- @if ($cv > 0)
                                                 <span class="text-success">Your project is under budget</span>
                                             @elseif ($ac == $pv)
                                                 <span class="text-primary">Your project is on budget</span>
                                             @else
+                                                <span class="text-danger">Your project is over budget</span>
+                                            @endif --}}
+
+                                            @if ($cv > 0)
+                                                <span class="text-success">Your project is under budget</span>
+                                            @elseif ($ac == $pv)
+                                                <span class="text-primary">Your project is on budget</span>
+                                            @elseif ($cv < 0)
                                                 <span class="text-danger">Your project is over budget</span>
                                             @endif
                                         </p>
@@ -316,11 +324,19 @@
                                         <span class="text-muted text-uppercase">Schedule :</span>
                                         {{-- <p class="h4 font-weight-bold mb-0">{{ ceil($scheduleVariance) }}</p> --}}
                                         <p class="h6 font-weight-bold mb-0">
-                                            @if ($sv > 0)
+                                            {{-- @if ($sv > 0)
                                                 <span class="text-success">Your project is ahead of the schedule</span>
                                             @elseif ($sv == 0)
                                                 <span class="text-primary">You project is on the schedule</span>
                                             @else
+                                                <span class="text-danger">Your project is behind the schedule</span>
+                                            @endif --}}
+
+                                            @if ($sv > 0)
+                                                <span class="text-success">Your project is ahead of the schedule</span>
+                                            @elseif ($sv == 0)
+                                                <span class="text-primary">You project is on the schedule</span>
+                                            @elseif ($sv < 0)
                                                 <span class="text-danger">Your project is behind the schedule</span>
                                             @endif
                                         </p>
