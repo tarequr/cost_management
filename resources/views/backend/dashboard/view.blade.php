@@ -2,177 +2,134 @@
 
 @push('css')
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/apexcharts/3.45.1/apexcharts.min.css">
+    <style>
+        .welcome-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            border-radius: 12px;
+            padding: 2rem !important;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .welcome-card::before {
+            content: "";
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            width: 150px;
+            height: 150px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+        }
+
+        .welcome-title {
+            font-weight: 700;
+            font-size: 2rem;
+            position: relative;
+            display: inline-block;
+        }
+
+        .user-name {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.15);
+            padding: 0.15rem 0.75rem;
+            border-radius: 50px;
+            display: inline-block;
+            font-weight: 800;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transform: perspective(100px) rotateX(5deg);
+            animation: glow 2s infinite alternate;
+        }
+
+        .welcome-emoji {
+            display: inline-block;
+            animation: bounce 1.5s infinite;
+        }
+
+        .welcome-subtitle {
+            opacity: 0.9;
+            font-size: 1.15rem;
+            margin-top: 0.5rem;
+        }
+
+        .welcome-meta {
+            font-size: 0.95rem;
+            opacity: 0.9;
+            margin-top: 1.5rem !important;
+        }
+
+        @keyframes glow {
+            0% {
+                box-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+            }
+
+            100% {
+                box-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
+            }
+        }
+
+        @keyframes bounce {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-5px);
+            }
+        }
+    </style>
 @endpush
 
 @section('content')
     <!-- Start content -->
     <div class="content">
         <div class="container-fluid">
-            <div class="row">
-                <!-- Budget Overview Card -->
-                <div class="col-md-6 mb-4">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="card-title">Budget Overview</h5>
-                        </div>
-                        <div class="card-body">
-                            <div id="budgetOverviewChart"></div>
+            <!-- Welcome Header -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="welcome-card bg-gradient-primary text-white p-4 rounded">
+                        <h2 class="welcome-title mb-1">
+                            Welcome back,
+                            <span class="user-name">{{ Auth::user()->name ?? 'User' }}</span>!
+                            <span class="welcome-emoji">☺️</span>
+                        </h2>
+                        <p class="welcome-subtitle mb-0">Your cost management dashboard is ready</p>
+
+                        <div class="welcome-meta d-flex mt-3">
+                            <div class="mr-4">
+                                <i class="fas fa-calendar-alt mr-2"></i>
+                                <span id="current-date">{{ now()->format('l, F j, Y') }}</span>
+                            </div>
+                            <div>
+                                <i class="fas fa-clock mr-2"></i>
+                                <span id="current-time">{{ now()->format('h:i A') }}</span>
+                            </div>
                         </div>
                     </div>
                 </div>
-
-                <!-- Task Progress Card -->
-                <div class="col-md-6 mb-4">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="card-title">Task Progress</h5>
-                        </div>
-                        <div class="card-body">
-                            <div id="taskProgressChart"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Cost Variance Trend -->
-                {{-- <div class="col-md-12 mb-4">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="card-title">Cost Variance Trend</h5>
-                        </div>
-                        <div class="card-body">
-                            <div id="costVarianceChart"></div>
-                        </div>
-                    </div>
-                </div> --}}
             </div>
         </div>
-        <!-- container-fluid -->
     </div>
-    <!-- content -->
 @endsection
 
 @push('js')
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/apexcharts/3.45.1/apexcharts.min.js"></script>
     <script>
-        // Budget Overview Chart
-        let budgetOverviewOptions = {
-            series: [{
-                name: 'Planned Budget',
-                data: @json($chartData['budgetOverview']['planned'])
-            }, {
-                name: 'Actual Cost',
-                data: @json($chartData['budgetOverview']['actual'])
-            }],
-            chart: {
-                type: 'bar',
-                height: 350,
-                stacked: false,
-            },
-            plotOptions: {
-                bar: {
-                    horizontal: false,
-                    columnWidth: '55%',
-                    endingShape: 'rounded'
-                },
-            },
-            dataLabels: {
-                enabled: false
-            },
-            stroke: {
-                show: true,
-                width: 2,
-                colors: ['transparent']
-            },
-            xaxis: {
-                categories: @json($chartData['budgetOverview']['projects']),
-            },
-            yaxis: {
-                title: {
-                    text: 'Amount (TK)'
-                }
-            },
-            fill: {
-                opacity: 1
-            },
-            tooltip: {
-                y: {
-                    formatter: function(val) {
-                        return "TK " + val.toLocaleString()
-                    }
-                }
-            }
-        };
+        // Update time every minute
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('current-time').textContent =
+                now.toLocaleTimeString('en-US', {
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    hour12: true
+                });
+        }
 
-        let budgetOverviewChart = new ApexCharts(
-            document.querySelector("#budgetOverviewChart"),
-            budgetOverviewOptions
-        );
-        budgetOverviewChart.render();
-
-        // Task Progress Donut Chart
-        let taskProgressOptions = {
-            series: @json($chartData['taskProgress']['values']),
-            chart: {
-                type: 'donut',
-                height: 350
-            },
-            labels: @json($chartData['taskProgress']['labels']),
-            responsive: [{
-                breakpoint: 480,
-                options: {
-                    chart: {
-                        width: 200
-                    },
-                    legend: {
-                        position: 'bottom'
-                    }
-                }
-            }]
-        };
-
-        let taskProgressChart = new ApexCharts(
-            document.querySelector("#taskProgressChart"),
-            taskProgressOptions
-        );
-        taskProgressChart.render();
-
-        // Cost Variance Trend Line Chart
-        let costVarianceOptions = {
-            series: [{
-                name: 'Cost Variance',
-                data: @json($chartData['costVariance']['values'])
-            }],
-            chart: {
-                height: 350,
-                type: 'line',
-            },
-            stroke: {
-                curve: 'smooth'
-            },
-            xaxis: {
-                categories: @json($chartData['costVariance']['dates'])
-            },
-            yaxis: {
-                title: {
-                    text: 'Amount (TK)'
-                }
-            },
-            markers: {
-                size: 4
-            },
-            tooltip: {
-                y: {
-                    formatter: function(val) {
-                        return "TK " + val.toLocaleString()
-                    }
-                }
-            }
-        };
-
-        let costVarianceChart = new ApexCharts(
-            document.querySelector("#costVarianceChart"),
-            costVarianceOptions
-        );
-        costVarianceChart.render();
+        setInterval(updateTime, 60000);
+        updateTime(); // Initial call
     </script>
 @endpush
