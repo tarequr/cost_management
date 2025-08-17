@@ -51,8 +51,6 @@ class BudgetFilterController extends Controller
 
         $totalAmount = array_sum($monthlyAmounts);
 
-        // dd($totalAmount, $monthlyAmounts);
-
         //Another section
         $totalTasks = BudgetCalculator::where('budget_estimate_id', $request->budget_estimate_id)->get();
 
@@ -69,39 +67,32 @@ class BudgetFilterController extends Controller
         $totalProjectMonths = $projectStart->diffInMonths($projectEnd) + 1; //database data
 
         $totalRate = $totalTasks->sum('fixed_rate');
-        // dd($startRange);
 
-        // dd($endRange, $projectStart);
-        // dd($endRange < $projectStart);
-        // // Check for overlap
-        // if ($endRange < $projectStart || $startRange > $projectEnd) {
-        //     dd('No overlap');
-        //     $message = 'Your selected time range does not match the project\'s time range. The project ran from ' .
-        //     $projectStart->format('F Y') . ' to ' . $projectEnd->format('F Y') . '.';
+        $ac = 0; // Actual Cost
 
-        //     notify()->error($message, 'Error');
-        //     return back();
-        // }
+        foreach ($tasks as $task) {
+            $ac += BudgetHelper::calculateMonthlyAmount(
+                $task->from_date,
+                $task->to_date,
+                $task->fixed_rate,
+                $startRange->month, // August
+                $startRange->year   // 2025
+            );
+        }
 
         $percentage = 0;
         if ($totalProjectMonths > 0) {
             $percentage = ($selectedMonths / $totalProjectMonths) * 100;
         }
 
-        // dd($percentage);
-
         $percentageRate = $totalRate * ($percentage / 100);
-
-        // dd($percentageRate);
 
         $bac = $totalRate;                      // Budget at Completion
         $pv  = (int) $request->expected_amount; // Planned Value
-        $ac  = $tasks->sum('fixed_rate');       // Actual Cost
-        $ev  = $percentageRate;                 // Earned Value
-        $cv  = $ev - $ac;                       // Cost Variance
-        $sv  = $ev - $pv;                       // Schedule Variance
-
-        // dd($bac, 'PV:' . $pv, $ac, 'EV: ' . $ev, $cv, $sv);
+                                                // $ac  = $tasks->sum('fixed_rate');       // Actual Cost
+        $ev = $percentageRate;                  // Earned Value
+        $cv = $ev - $ac;                        // Cost Variance
+        $sv = $ev - $pv;                        // Schedule Variance
 
         $labels   = []; // ["May 2025", "Jun 2025", …]
         $acSeries = []; // cumulative AC
