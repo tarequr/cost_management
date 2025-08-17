@@ -89,10 +89,10 @@ class BudgetFilterController extends Controller
 
         $bac = $totalRate;                      // Budget at Completion
         $pv  = (int) $request->expected_amount; // Planned Value
-                                                // $ac  = $tasks->sum('fixed_rate');       // Actual Cost
-        $ev = $percentageRate;                  // Earned Value
-        $cv = $ev - $ac;                        // Cost Variance
-        $sv = $ev - $pv;                        // Schedule Variance
+        $ac  = array_sum($monthlyAmounts);      // $ac  = $tasks->sum('fixed_rate');       // Actual Cost
+        $ev  = $percentageRate;                 // Earned Value
+        $cv  = $ev - $ac;                       // Cost Variance
+        $sv  = $ev - $pv;                       // Schedule Variance
 
         $labels   = []; // ["May 2025", "Jun 2025", …]
         $acSeries = []; // cumulative AC
