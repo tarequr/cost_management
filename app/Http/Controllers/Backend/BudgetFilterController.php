@@ -119,6 +119,8 @@ class BudgetFilterController extends Controller
 
         // dd($labels, $acSeries, $pvSeries, $evSeries);
 
+        // dd("BAC: $bac, PV: $pv, AC: $ac, EV: $ev, CV: $cv, SV: $sv");
+
         return view('backend.budget_calculator.filter_data', [
             'budgetEstimate'    => $budgetEstimate,
             'budgetCalculators' => $tasks,

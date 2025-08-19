@@ -311,11 +311,20 @@
                                                 <span class="text-danger">Your project is over budget</span>
                                             @endif --}}
 
-                                            @if ($cv > 0)
+                                            {{-- @if ($cv > 0)
                                                 <span class="text-success">Your project is under budget</span>
                                             @elseif ($ac == $pv)
                                                 <span class="text-primary">Your project is on budget</span>
                                             @elseif ($cv < 0)
+                                                <span class="text-danger">Your project is over budget</span>
+                                            @endif --}}
+
+                                            {{-- 3rd time  --}}
+                                            @if ($ac < $pv)
+                                                <span class="text-success">Your project is under budget</span>
+                                            @elseif ($ac == $pv)
+                                                <span class="text-primary">Your project is on budget</span>
+                                            @else
                                                 <span class="text-danger">Your project is over budget</span>
                                             @endif
                                         </p>
