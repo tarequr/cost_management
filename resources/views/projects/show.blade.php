@@ -53,10 +53,20 @@
                                             <td>{{ $task->end_date->format('F Y') }}</td>
                                             <td>{{ number_format($task->amount, 2) }}</td>
                                             <td>{{ $task->duration }}</td>
-                                            <td>{{ $task->dependencies->count() }}</td>
                                             <td>
-                                                <a href="{{ route('tasks.dependencies.index', $task) }}"
-                                                    class="btn btn-sm btn-info">Manage Dependencies</a>
+                                                @if ($task->dependency)
+                                                    {{ $task->dependency->dependsOnTask->task_name ?? 'N/A' }} ({{ $task->dependency->type }})
+                                                @else
+                                                    -
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if (!$task->dependency && !$loop->first)
+                                                    <a href="{{ route('tasks.dependencies.index', $task) }}"
+                                                        class="btn btn-sm btn-info">Manage Dependencies</a>
+                                                @else
+                                                    -
+                                                @endif
                                             </td>
                                         </tr>
                                     @endforeach

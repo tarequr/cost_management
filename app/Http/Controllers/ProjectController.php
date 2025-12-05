@@ -33,7 +33,9 @@ class ProjectController extends Controller
             foreach ($validated['tasks'] as $taskData) {
                 $taskData['start_date'] .= '-01';
                 $taskData['end_date'] .= '-01';
-                $taskData['duration'] = $taskData['end_date']->diffInMonths($taskData['start_date']);
+                $start = \Carbon\Carbon::parse($taskData['start_date']);
+                $end = \Carbon\Carbon::parse($taskData['end_date']);
+                $taskData['duration'] = $end->diffInMonths($start) + 1;
                 $project->tasks()->create($taskData);
             }
             notify()->success('Project created successfully', 'Success');
