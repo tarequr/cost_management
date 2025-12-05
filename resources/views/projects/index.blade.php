@@ -31,6 +31,9 @@
                                     <tr>
                                         <th class="text-center">SL</th>
                                         <th class="text-center">Project Name</th>
+                                        <th class="text-center">Tasks</th>
+                                        <th class="text-center">Amount</th>
+                                        <th class="text-center">Created At</th>
                                         <th class="text-center">Action</th>
                                     </tr>
                                 </thead>
@@ -39,6 +42,9 @@
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
                                             <td>{{ $project->name }}</td>
+                                            <td>{{ $project->tasks->count() }}</td>
+                                            <td>{{ $project->tasks->sum('amount') }}</td>
+                                            <td>{{ $project->created_at->format('d/m/Y') }}</td>
                                             <td>
                                                 <a href="{{ route('projects.show', $project) }}"
                                                     class="btn btn-info btn-sm">View</a>

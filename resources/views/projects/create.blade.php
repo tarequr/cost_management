@@ -71,8 +71,8 @@
                                     <div class="task-row">
                                         <input type="text" name="tasks[0][task_name]" class="form-control"
                                             placeholder="Task Name" required>
-                                        <input type="date" name="tasks[0][start_date]" class="form-control" required>
-                                        <input type="date" name="tasks[0][end_date]" class="form-control" required>
+                                        <input type="month" name="tasks[0][start_date]" class="form-control" required>
+                                        <input type="month" name="tasks[0][end_date]" class="form-control" required>
                                         <input type="number" name="tasks[0][amount]" class="form-control"
                                             placeholder="Amount" required>
                                         <button type="button" class="remove-task">Remove</button>
@@ -104,20 +104,44 @@
             // $('.dropify').dropify();
             let taskIndex = $('#tasksRepeater .task-row').length;
             $('#addTask').on('click', function() {
+                let range = getNextMonthMinMax();
                 $('#tasksRepeater').append(`
-                    <div class=\"task-row\">
-                        <input type=\"text\" name=\"tasks[${taskIndex}][task_name]\" class=\"form-control\" placeholder=\"Task Name\" required>
-                        <input type=\"date\" name=\"tasks[${taskIndex}][start_date]\" class=\"form-control\" required>
-                        <input type=\"date\" name=\"tasks[${taskIndex}][end_date]\" class=\"form-control\" required>
-                        <input type=\"number\" name=\"tasks[${taskIndex}][amount]\" class=\"form-control\" placeholder=\"Amount\" required>
-                        <button type=\"button\" class=\"remove-task\">Remove</button>
+                    <div class="task-row">
+                        <input type="text" name="tasks[${taskIndex}][task_name]" class="form-control" placeholder="Task Name" required>
+                        <input type="month" name="tasks[${taskIndex}][start_date]" class="form-control" min="${range.min}" max="${range.max}" required>
+                        <input type="month" name="tasks[${taskIndex}][end_date]" class="form-control" min="${range.min}" max="${range.max}" required>
+                        <input type="number" name="tasks[${taskIndex}][amount]" class="form-control" placeholder="Amount" required>
+                        <button type="button" class="remove-task">Remove</button>
                     </div>
                 `);
                 taskIndex++;
             });
-            $('#tasksRepeater').on('click', '.remove-task', function() {
+
+            $(document).on('click', '.remove-task', function() {
                 $(this).closest('.task-row').remove();
             });
+
+            function getNextMonthMinMax() {
+                let today = new Date();
+                let year = today.getFullYear();
+                let month = today.getMonth() + 2;
+                if (month > 12) {
+                    month = 1;
+                    year++;
+                }
+                let min = `${year}-${month.toString().padStart(2, '0')}`;
+                let maxYear = year + 5;
+                let max = `${maxYear}-12`;
+                return {
+                    min,
+                    max
+                };
+            }
+            
+            let range = getNextMonthMinMax();
+            $('#tasksRepeater .task-row input[type="month"]').attr('min', range.min).attr('max', range.max);
+
+
         });
     </script>
 @endpush

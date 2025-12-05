@@ -3,6 +3,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Project;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class ProjectController extends Controller
 {
@@ -27,11 +28,20 @@ class ProjectController extends Controller
             'tasks.*.end_date'   => 'required|date|after_or_equal:tasks.*.start_date',
             'tasks.*.amount'     => 'required|numeric|min:0',
         ]);
-        $project = Project::create(['name' => $validated['name']]);
-        foreach ($validated['tasks'] as $taskData) {
-            $project->tasks()->create($taskData);
+        try {
+            $project = Project::create(['name' => $validated['name']]);
+            foreach ($validated['tasks'] as $taskData) {
+                $taskData['start_date'] .= '-01';
+                $taskData['end_date'] .= '-01';
+                $project->tasks()->create($taskData);
+            }
+            notify()->success('Project created successfully', 'Success');
+            return redirect()->route('projects.show', $project);
+        } catch (\Throwable $th) {
+            Log::error($th->getMessage());
+            notify()->error('Project creation failed', 'Error');
+            return back();
         }
-        return redirect()->route('projects.show', $project);
     }
 
     public function show(Project $project)

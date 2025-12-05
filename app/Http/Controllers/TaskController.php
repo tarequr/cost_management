@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use App\Models\Project;
 use App\Models\Task;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class TaskController extends Controller
 {
@@ -16,10 +17,19 @@ class TaskController extends Controller
             'tasks.*.end_date'   => 'required|date|after_or_equal:tasks.*.start_date',
             'tasks.*.amount'     => 'required|numeric|min:0',
         ]);
-        foreach ($validated['tasks'] as $taskData) {
-            $project->tasks()->create($taskData);
+        try {
+            foreach ($validated['tasks'] as $taskData) {
+                $taskData['start_date'] .= '-01';
+                $taskData['end_date'] .= '-01';
+                $project->tasks()->create($taskData);
+            }
+            notify()->success('Tasks added successfully', 'Success');
+            return redirect()->route('projects.show', $project);
+        } catch (\Throwable $th) {
+            Log::error($th->getMessage());
+            notify()->error('Failed to add tasks', 'Error');
+            return back();
         }
-        return redirect()->route('projects.show', $project);
     }
 
     public function update(Request $request, Task $task)
@@ -30,7 +40,16 @@ class TaskController extends Controller
             'end_date'   => 'required|date|after_or_equal:start_date',
             'amount'     => 'required|numeric|min:0',
         ]);
-        $task->update($validated);
-        return back();
+        try {
+            $validated['start_date'] .= '-01';
+            $validated['end_date'] .= '-01';
+            $task->update($validated);
+            notify()->success('Task updated successfully', 'Success');
+            return back();
+        } catch (\Throwable $th) {
+            Log::error($th->getMessage());
+            notify()->error('Task update failed', 'Error');
+            return back();
+        }
     }
 }
