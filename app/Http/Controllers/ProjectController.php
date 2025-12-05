@@ -33,6 +33,7 @@ class ProjectController extends Controller
             foreach ($validated['tasks'] as $taskData) {
                 $taskData['start_date'] .= '-01';
                 $taskData['end_date'] .= '-01';
+                $taskData['duration'] = $taskData['end_date']->diffInMonths($taskData['start_date']);
                 $project->tasks()->create($taskData);
             }
             notify()->success('Project created successfully', 'Success');

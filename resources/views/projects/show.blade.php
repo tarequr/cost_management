@@ -40,6 +40,8 @@
                                         <th>Start Date</th>
                                         <th>End Date</th>
                                         <th>Amount</th>
+                                        <th>Duration</th>
+                                        <th>Precedence</th>
                                         <th>Dependencies</th>
                                     </tr>
                                 </thead>
@@ -47,9 +49,11 @@
                                     @foreach ($project->tasks as $task)
                                         <tr>
                                             <td>{{ $task->task_name }}</td>
-                                            <td>{{ $task->start_date }}</td>
-                                            <td>{{ $task->end_date }}</td>
+                                            <td>{{ $task->start_date->format('F Y') }}</td>
+                                            <td>{{ $task->end_date->format('F Y') }}</td>
                                             <td>{{ number_format($task->amount, 2) }}</td>
+                                            <td>{{ $task->duration }}</td>
+                                            <td>{{ $task->dependencies->count() }}</td>
                                             <td>
                                                 <a href="{{ route('tasks.dependencies.index', $task) }}"
                                                     class="btn btn-sm btn-info">Manage Dependencies</a>
