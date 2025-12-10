@@ -12,7 +12,20 @@
                     </a>
                 </li>
                 <li>
-                    <a href="{{ route('budget-estimate.index') }}" class="waves-effect"><i class="icon-diamond"></i><span> Budget Estimate </span></a>
+                    <a href="{{ route('projects.index') }}" class="waves-effect"><i class="icon-folder"></i><span>
+                            Projects </span></a>
+                </li>
+                <li>
+                    <a href="{{ route('budget-estimate.index') }}" class="waves-effect"><i
+                            class="icon-diamond"></i><span> Budget Estimate </span></a>
+                </li>
+                <li>
+                    <a href="{{ route('budgets.draft', ['project' => 1]) }}" class="waves-effect"><i
+                            class="icon-bar-chart"></i><span> Draft Budget </span></a>
+                </li>
+                <li>
+                    <a href="{{ route('budgets.final', ['project' => 1]) }}" class="waves-effect"><i
+                            class="icon-pie-chart"></i><span> Final Budget (EVM) </span></a>
                 </li>
                 {{-- <li>
                     <a href="calendar.html" class="waves-effect"><i class="icon-calendar"></i><span> Calendar </span></a>
