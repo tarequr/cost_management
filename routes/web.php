@@ -46,6 +46,7 @@ Route::post('tasks/{task}/dependencies', [TaskDependencyController::class, 'stor
 // Budget routes
 Route::get('projects/{project}/draft-budget', [BudgetController::class, 'draft'])->name('budgets.draft');
 Route::post('projects/{project}/draft-budget/recalculate', [BudgetController::class, 'recalculate'])->name('budgets.draft.recalculate');
+Route::post('tasks/{task}/actual-cost', [BudgetController::class, 'updateActualCost'])->name('tasks.actualcost.update');
 
 // Final budget (EVM) route
 Route::get('projects/{project}/final-budget', [FinalBudgetController::class, 'show'])->name('budgets.final');

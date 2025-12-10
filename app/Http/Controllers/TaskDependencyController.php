@@ -10,8 +10,8 @@ class TaskDependencyController extends Controller
     public function index(Task $task)
     {
         $tasks        = Task::where('project_id', $task->project_id)->where('id', '!=', $task->id)->get();
-        $dependency   = $task->dependency;
-        return view('tasks.dependencies', compact('task', 'tasks', 'dependency'));
+        $dependencies = $task->dependencies;
+        return view('tasks.dependencies', compact('task', 'tasks', 'dependencies'));
     }
 
     public function store(Request $request, Task $task)

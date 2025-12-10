@@ -11,7 +11,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('task_id')->constrained('tasks')->onDelete('cascade');
             $table->foreignId('depends_on_task_id')->constrained('tasks')->onDelete('cascade');
-            $table->enum('type', ['FF', 'SS']);
+            $table->enum('type', ['FF', 'SS'])->comment('FF=Finish-to-Finish, SS=Start-to-Start');
             $table->timestamps();
             $table->unique(['task_id', 'depends_on_task_id']);
         });

@@ -47,11 +47,14 @@
                                     </select>
                                 </div>
                                 <div class="mb-3">
-                                    <label for="type" class="form-label">Dependency Type</label>
+                                    <label for="type" class="form-label">Dependency Type (Precedence)</label>
                                     <select name="type" id="type" class="form-control" required>
-                                        <option value="FF">Finish to Finish</option>
-                                        <option value="SS">Start to Start</option>
+                                        <option value="FF">F-F (Finish-to-Finish) - Both tasks finish together</option>
+                                        <option value="SS">S-S (Start-to-Start) - Both tasks start together</option>
                                     </select>
+                                    <small class="text-muted">
+                                        <strong>Note:</strong> Setting a precedence will automatically update the task dates.
+                                    </small>
                                 </div>
                                 <button type="submit" class="btn btn-primary">Save Dependency</button>
                             </form>

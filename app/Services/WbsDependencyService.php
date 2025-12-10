@@ -3,91 +3,170 @@ namespace App\Services;
 
 use App\Models\Task;
 use App\Models\TaskDependency;
+use Carbon\Carbon;
 
 class WbsDependencyService
 {
+    /**
+     * Propagate dates based on precedence relationships
+     * 
+     * Precedence Types:
+     * - F-F (Finish-to-Finish): Successor finishes when predecessor finishes
+     * - S-S (Start-to-Start): Successor starts when predecessor starts
+     * - F-S (Finish-to-Start): Successor starts when predecessor finishes (most common)
+     * - S-F (Start-to-Finish): Successor finishes when predecessor starts (rare)
+     */
     public function propagateDates(Task $task)
     {
         // 1. Calculate dates for THIS task based on its dependency (if any)
         $dependency = $task->dependency;
         
         if ($dependency) {
-            $predecessor = Task::find($dependency->depends_on_task_id); // Depends on this task
-            if ($predecessor) {
-                // Duration in months (approximate, we can refine logic later)
-                // If duration is missing, calculate it from existing dates or default to 1
-                $duration = $task->duration ?: 1;
-
-                if ($dependency->type === 'FF') {
-                    // Finish to Finish: End date same as predecessor
-                    $task->end_date = $predecessor->end_date;
-                    // Start date = End date - Duration
-                    // Note: Carbon subMonths subtracts from the date. 
-                    // E.g., End: Dec 2026. Duration 1. Start should be Dec 2026? 
-                    // Or if End is 31st Dec. Start is 1st Dec?
-                    // User logic: Start = End - Duration.
-                    // Let's ensure dates are instances
-                    $endDate = $task->end_date; 
-                    $task->start_date = $endDate->copy()->subMonths($duration - 1); // -1 because inclusive?
-                    // Example: Duration 1 month. Jan 1 to Jan 31.
-                    // End = Jan 31. Start = Jan 31 - 0 months = Jan 31? No.
-                    // Let's stick to simple "Add/Sub months" logic for now.
-                    // If End is 2026-02-01 (Feb). Duration 1.
-                    // Start = 2026-02-01. 
-                    
-                    // Better logic based on User's Excel:
-                    // 1.1 Electrical: 12 months. Jan-Dec.
-                    // 1.2 Cooling (FF): 12 months. Jan-Dec.
-                    // So if Predecessor End = Dec. Successor End = Dec.
-                    // Successor Start = Dec - 12 months + 1?
-                    
-                    $task->start_date = $task->end_date->copy()->subMonths($duration)->addMonth()->startOfMonth();
-                     // Re-align end date to end of month just in case
-                    $task->end_date = $task->end_date->endOfMonth();
-                    
-                } elseif ($dependency->type === 'SS') {
-                    // Start to Start: Start date same as predecessor
-                    $task->start_date = $predecessor->start_date->startOfMonth();
-                    // End date = Start + Duration
-                    $task->end_date = $task->start_date->copy()->addMonths($duration)->subDay()->endOfMonth();
+            $predecessor = Task::find($dependency->depends_on_task_id);
+            
+            if ($predecessor && $task->duration) {
+                $duration = $task->duration;
+                
+                switch ($dependency->type) {
+                    case 'FF': // Finish-to-Finish
+                        // Successor must finish when predecessor finishes
+                        // End date = Predecessor's end date
+                        // Start date = End date - Duration
+                        $task->end_date = Carbon::parse($predecessor->end_date)->endOfMonth();
+                        $task->start_date = $task->end_date->copy()
+                            ->subMonths($duration - 1)
+                            ->startOfMonth();
+                        break;
+                        
+                    case 'SS': // Start-to-Start
+                        // Successor must start when predecessor starts
+                        // Start date = Predecessor's start date
+                        // End date = Start date + Duration
+                        $task->start_date = Carbon::parse($predecessor->start_date)->startOfMonth();
+                        $task->end_date = $task->start_date->copy()
+                            ->addMonths($duration - 1)
+                            ->endOfMonth();
+                        break;
+                        
+                    case 'FS': // Finish-to-Start (most common)
+                        // Successor starts after predecessor finishes
+                        // Start date = Predecessor's end date + 1 day
+                        // End date = Start date + Duration
+                        $task->start_date = Carbon::parse($predecessor->end_date)
+                            ->addDay()
+                            ->startOfMonth();
+                        $task->end_date = $task->start_date->copy()
+                            ->addMonths($duration - 1)
+                            ->endOfMonth();
+                        break;
+                        
+                    case 'SF': // Start-to-Finish (rare)
+                        // Successor finishes when predecessor starts
+                        // End date = Predecessor's start date
+                        // Start date = End date - Duration
+                        $task->end_date = Carbon::parse($predecessor->start_date)->endOfMonth();
+                        $task->start_date = $task->end_date->copy()
+                            ->subMonths($duration - 1)
+                            ->startOfMonth();
+                        break;
+                        
+                    default:
+                        // No change to dates
+                        break;
                 }
+                
                 $task->save();
             }
         }
 
-        // 2. Find all tasks that depend on THIS task (Successors) and update them
-        // We need to look for TaskDependencies where 'depends_on_task_id' == $task->id
+        // 2. Find all tasks that depend on THIS task (Successors) and update them recursively
         $successors = TaskDependency::where('depends_on_task_id', $task->id)->get();
+        
         foreach ($successors as $successorDep) {
             $successorTask = Task::find($successorDep->task_id);
             if ($successorTask) {
+                // Recursive call to propagate changes down the dependency chain
                 $this->propagateDates($successorTask);
             }
         }
     }
 
-    public function validateNoCircularDependency(Task $task, $dependsOnId)
+    /**
+     * Validate that adding this dependency won't create a circular reference
+     */
+    public function validateNoCircularDependency(Task $task, $dependsOnId): bool
     {
-        // Simple check for circular dependency
+        // Can't depend on itself
         if ($task->id === $dependsOnId) {
             return false;
         }
 
+        // Check for circular dependencies using depth-first search
         $visited = [$task->id];
         $current = $dependsOnId;
+        
         while ($current) {
+            // Find if current task depends on another task
             $dep = TaskDependency::where('task_id', $current)->first();
-            if (! $dep) {
+            
+            if (!$dep) {
+                // No more dependencies in chain
                 break;
             }
 
+            // Check if we've already visited this dependency (circular!)
             if (in_array($dep->depends_on_task_id, $visited)) {
-                return false;
+                return false; // Circular dependency detected
             }
 
             $visited[] = $dep->depends_on_task_id;
-            $current   = $dep->depends_on_task_id;
+            $current = $dep->depends_on_task_id;
         }
-        return true;
+        
+        return true; // No circular dependency
+    }
+
+    /**
+     * Calculate Critical Path (CPM)
+     * Returns array of critical tasks
+     */
+    public function calculateCriticalPath($projectId): array
+    {
+        // This can be implemented later for CPM analysis
+        // For now, return empty array
+        return [];
+    }
+
+    /**
+     * Get all tasks in topological order (dependency order)
+     */
+    public function getTopologicalOrder($projectId): array
+    {
+        $tasks = Task::where('project_id', $projectId)->get();
+        $sorted = [];
+        $visited = [];
+        
+        foreach ($tasks as $task) {
+            if (!in_array($task->id, $visited)) {
+                $this->topologicalSort($task, $visited, $sorted);
+            }
+        }
+        
+        return array_reverse($sorted);
+    }
+    
+    private function topologicalSort($task, &$visited, &$sorted)
+    {
+        $visited[] = $task->id;
+        
+        // Visit all dependencies first
+        if ($task->dependency) {
+            $predecessor = Task::find($task->dependency->depends_on_task_id);
+            if ($predecessor && !in_array($predecessor->id, $visited)) {
+                $this->topologicalSort($predecessor, $visited, $sorted);
+            }
+        }
+        
+        $sorted[] = $task;
     }
 }
