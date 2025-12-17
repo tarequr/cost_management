@@ -71,4 +71,77 @@ class BudgetController extends Controller
             'message' => 'Actual cost updated successfully',
         ]);
     }
+    /**
+     * Show input page for a specific task
+     */
+    public function input(Task $task)
+    {
+        $start = \Carbon\Carbon::parse($task->start_date);
+        $end = \Carbon\Carbon::parse($task->end_date);
+        $months = [];
+
+        // Generate months between start and end
+        $period = \Carbon\CarbonPeriod::create($start, '1 month', $end);
+        foreach ($period as $date) {
+            $months[] = [
+                'key' => $date->format('Y-m'),
+                'label' => $date->format('M Y'),
+                'year' => $date->format('Y')
+            ];
+        }
+
+        $existingRecords = $task->monthlyActualCosts->keyBy('month');
+        $plannedBudget = $this->budgetService->calculateMonthlyBudget($task);
+
+        return view('budgets.input', compact('task', 'months', 'existingRecords', 'plannedBudget'));
+    }
+
+    /**
+     * Store budget inputs for a task
+     */
+    public function storeInput(Request $request, Task $task)
+    {
+        $validated = $request->validate([
+            'inputs' => 'required|array',
+            'inputs.*.actual_cost' => 'nullable|numeric|min:0',
+            'inputs.*.earned_value_percentage' => 'nullable|numeric|min:0|max:100',
+        ]);
+
+        $plannedBudget = $this->budgetService->calculateMonthlyBudget($task);
+
+        try {
+            foreach ($validated['inputs'] as $month => $data) {
+                // Only save if there's data or update existing
+                if (isset($data['actual_cost']) || isset($data['earned_value_percentage'])) {
+                    
+                    // Enforce Cap
+                    $maxAllowed = $plannedBudget[$month] ?? 0;
+                    $inputCost = $data['actual_cost'] ?? 0;
+
+                    if ($inputCost > $maxAllowed) {
+                        notify()->error("Cost for $month exceeds budget (" . number_format($maxAllowed, 2) . ")", 'Validation Error');
+                        return back()->withInput();
+                    }
+
+                    MonthlyActualCost::updateOrCreate(
+                        [
+                            'task_id' => $task->id,
+                            'month' => $month,
+                        ],
+                        [
+                            'actual_cost' => $inputCost,
+                            'earned_value_percentage' => $data['earned_value_percentage'] ?? 0,
+                        ]
+                    );
+                }
+            }
+
+            notify()->success('Budget inputs updated successfully', 'Success');
+            return redirect()->route('projects.show', $task->project_id);
+            
+        } catch (\Throwable $th) {
+            notify()->error('Failed to update inputs', 'Error');
+            return back()->withInput();
+        }
+    }
 }
