@@ -31,7 +31,7 @@
                             <form action="{{ route('tasks.budget.store', $task) }}" method="POST">
                                 @csrf
                                 <div class="table-responsive">
-                                    <table class="table table-bordered table-striped">
+                                    <table class="table table-bordered table-striped" data-task-budget="{{ $task->amount }}">
                                         <thead>
                                             <tr>
                                                 <th style="width: 20%;">Month</th>
@@ -58,18 +58,18 @@
                                                                name="inputs[{{ $month['key'] }}][actual_cost]" 
                                                                class="form-control cost-input" 
                                                                placeholder="0.00"
-                                                               max="{{ $maxAllowed }}"
                                                                step="0.01"
                                                                value="{{ old('inputs.'.$month['key'].'.actual_cost', $existing->actual_cost ?? '') }}">
-                                                        <small class="text-danger error-msg" style="display:none;">Exceeds Budget!</small>
                                                     </td>
                                                     <td>
                                                         <div class="input-group">
                                                             <input type="number" 
                                                                    name="inputs[{{ $month['key'] }}][earned_value_percentage]" 
-                                                                   class="form-control" 
+                                                                   class="form-control ev-input" 
                                                                    placeholder="0-100"
                                                                    min="0" max="100"
+                                                                   step="0.01"
+                                                                   readonly
                                                                    value="{{ old('inputs.'.$month['key'].'.earned_value_percentage', $existing->earned_value_percentage ?? '') }}">
                                                             <div class="input-group-append">
                                                                 <span class="input-group-text">%</span>
@@ -80,6 +80,13 @@
                                             @endforeach
                                         </tbody>
                                     </table>
+                                </div>
+                                
+                                <div id="total-error-msg" class="alert alert-danger mt-3" style="display:none;">
+                                    Total cost exceeds project budget!
+                                </div>
+                                <div class="mt-2">
+                                    <strong>Total Entered: <span id="total-entered">0.00</span> / <span id="project-budget">{{ number_format($task->amount, 2) }}</span></strong>
                                 </div>
 
                                 <div class="text-right mt-3">
@@ -99,25 +106,46 @@
 @push('js')
 <script>
     $(document).ready(function() {
+        const taskBudget = parseFloat($('table').data('task-budget')) || 0;
+
+        function checkTotalBudget() {
+            let total = 0;
+            $('.cost-input').each(function() {
+                total += parseFloat($(this).val()) || 0;
+            });
+            
+            $('#total-entered').text(total.toFixed(2));
+            
+            if (total > taskBudget) {
+                $('#total-error-msg').show();
+                $('#btn-submit').prop('disabled', true);
+                return false;
+            } else {
+                $('#total-error-msg').hide();
+                $('#btn-submit').prop('disabled', false);
+                return true;
+            }
+        }
+        
+        // Initial check
+        checkTotalBudget();
+
         $('.cost-input').on('input', function() {
             const input = $(this);
-            const max = parseFloat(input.attr('max')) || 0;
             const val = parseFloat(input.val()) || 0;
-            const errorMsg = input.siblings('.error-msg');
-            const submitBtn = $('#btn-submit');
-
-            if (val > max) {
-                input.addClass('is-invalid');
-                errorMsg.show();
-                submitBtn.prop('disabled', true);
-            } else {
-                input.removeClass('is-invalid');
-                errorMsg.hide();
-                // Check if any other input has error
-                if ($('.is-invalid').length === 0) {
-                    submitBtn.prop('disabled', false);
-                }
+            
+            // Auto-calculate Earned Value %
+            let evPercent = 0;
+            if (taskBudget > 0 && val >= 0) {
+                evPercent = (val / taskBudget) * 100;
             }
+            
+            // Update the corresponding EV input in the same row
+            const row = input.closest('tr');
+            row.find('.ev-input').val(evPercent.toFixed(2));
+
+            // Validate Total
+            checkTotalBudget();
         });
     });
 </script>
