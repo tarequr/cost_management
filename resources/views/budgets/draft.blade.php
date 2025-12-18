@@ -126,50 +126,37 @@
                             </div>
 
                             <div class="mt-4">
-                                <h6>Monthly Budget Input (Actual Costs & Earned Value %)</h6>
-                                <p class="text-muted">Enter actual costs and earned value percentage for each task per month</p>
-                                
-                                @foreach($tasks as $taskData)
-                                    @php $task = $taskData['task']; @endphp
-                                    <div class="card mb-3">
-                                        <div class="card-header">
-                                            <strong>{{ $task->task_name }}</strong> (Budget: {{ number_format($task->amount, 2) }})
-                                        </div>
-                                        <div class="card-body">
-                                            <div class="row">
-                                                @foreach($months as $month)
-                                                    @if(isset($taskData['monthly_budget'][$month['key']]) && $taskData['monthly_budget'][$month['key']] > 0)
-                                                        @php
-                                                            $actualCost = $task->monthlyActualCosts->where('month', $month['key'])->first();
-                                                        @endphp
-                                                        <div class="col-md-3 mb-2">
-                                                            <label class="small">{{ $month['label'] }} {{ $month['year'] }}</label>
-                                                            <input type="number" 
-                                                                   class="form-control form-control-sm actual-cost-input" 
-                                                                   placeholder="Actual Cost"
-                                                                   value="{{ $actualCost->actual_cost ?? '' }}"
-                                                                   data-task-id="{{ $task->id }}"
-                                                                   data-month="{{ $month['key'] }}"
-                                                                   data-field="actual_cost">
-                                                            <input type="number" 
-                                                                   class="form-control form-control-sm actual-cost-input mt-1" 
-                                                                   placeholder="EV %"
-                                                                   value="{{ $actualCost->earned_value_percentage ?? '' }}"
-                                                                   data-task-id="{{ $task->id }}"
-                                                                   data-month="{{ $month['key'] }}"
-                                                                   data-field="earned_value_percentage"
-                                                                   max="100"
-                                                                   min="0">
-                                                        </div>
-                                                    @endif
+                                <div class="mt-4">
+                                    <h6>Monthly Budget Input (Actual Costs & Earned Value %)</h6>
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered table-striped" style="font-size: 13px;">
+                                            <thead>
+                                                <tr>
+                                                    <th style="width: 70%;">WBS Activity</th>
+                                                    <th style="width: 30%; text-align: center;">Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach($tasks as $taskData)
+                                                    @php 
+                                                        $task = $taskData['task']; 
+                                                        $existingRecords = $task->monthlyActualCosts->keyBy('month');
+                                                    @endphp
+                                                    <tr>
+                                                        <td>
+                                                            <strong>{{ $task->task_name }}</strong>
+                                                        </td>
+                                                        <td class="text-center">
+                                                            <a href="{{ route('tasks.budget.input', $task) }}" class="btn btn-info btn-sm">
+                                                                <i class="fa fa-edit"></i> Update Input
+                                                            </a>
+                                                        </td>
+                                                    </tr>
                                                 @endforeach
-                                            </div>
-                                            <button class="btn btn-sm btn-primary save-actual-cost" data-task-id="{{ $task->id }}">
-                                                Save Actual Costs
-                                            </button>
-                                        </div>
+                                            </tbody>
+                                        </table>
                                     </div>
-                                @endforeach
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -178,47 +165,5 @@
         </div>
     </div>
 @endsection
-
-@push('js')
-<script>
-    $(document).ready(function() {
-        $('.save-actual-cost').on('click', function() {
-            const taskId = $(this).data('task-id');
-            const inputs = $(this).closest('.card-body').find('.actual-cost-input');
-            
-            let monthlyData = {};
-            inputs.each(function() {
-                const month = $(this).data('month');
-                const field = $(this).data('field');
-                const value = $(this).val();
-                
-                if (!monthlyData[month]) {
-                    monthlyData[month] = {};
-                }
-                monthlyData[month][field] = value || 0;
-            });
-            
-            // Save each month's data
-            Object.keys(monthlyData).forEach(month => {
-                $.ajax({
-                    url: `/tasks/${taskId}/actual-cost`,
-                    method: 'POST',
-                    data: {
-                        _token: '{{ csrf_token() }}',
-                        month: month,
-                        actual_cost: monthlyData[month].actual_cost,
-                        earned_value_percentage: monthlyData[month].earned_value_percentage
-                    },
-                    success: function(response) {
-                        console.log('Saved:', month);
-                    }
-                });
-            });
-            
-            alert('Actual costs saved successfully!');
-        });
-    });
-</script>
-@endpush
 
 
