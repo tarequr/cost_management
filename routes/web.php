@@ -32,23 +32,26 @@ Route::controller(AuthOtpController::class)->group(function () {
     Route::post('otp-resend', 'resend')->name('otp.resend');
 });
 
-// Project routes
-Route::resource('projects', ProjectController::class);
 
-// Task routes (nested under projects)
-Route::post('projects/{project}/tasks', [TaskController::class, 'store'])->name('tasks.store');
-Route::put('tasks/{task}', [TaskController::class, 'update'])->name('tasks.update');
+Route::group(['middleware' => 'auth'], function () {
+    // Project routes
+    Route::resource('projects', ProjectController::class);
 
-// Task dependency routes
-Route::get('tasks/{task}/dependencies', [TaskDependencyController::class, 'index'])->name('tasks.dependencies.index');
-Route::post('tasks/{task}/dependencies', [TaskDependencyController::class, 'store'])->name('tasks.dependencies.store');
+    // Task routes (nested under projects)
+    Route::post('projects/{project}/tasks', [TaskController::class, 'store'])->name('tasks.store');
+    Route::put('tasks/{task}', [TaskController::class, 'update'])->name('tasks.update');
 
-// Budget routes
-Route::get('projects/{project}/draft-budget', [BudgetController::class, 'draft'])->name('budgets.draft');
-Route::post('projects/{project}/draft-budget/recalculate', [BudgetController::class, 'recalculate'])->name('budgets.draft.recalculate');
-Route::post('tasks/{task}/actual-cost', [BudgetController::class, 'updateActualCost'])->name('tasks.actualcost.update');
-Route::get('tasks/{task}/budget-input', [BudgetController::class, 'input'])->name('tasks.budget.input');
-Route::post('tasks/{task}/budget-input', [BudgetController::class, 'storeInput'])->name('tasks.budget.store');
+    // Task dependency routes
+    Route::get('tasks/{task}/dependencies', [TaskDependencyController::class, 'index'])->name('tasks.dependencies.index');
+    Route::post('tasks/{task}/dependencies', [TaskDependencyController::class, 'store'])->name('tasks.dependencies.store');
 
-// Final budget (EVM) route
-Route::get('projects/{project}/final-budget', [FinalBudgetController::class, 'show'])->name('budgets.final');
+    // Budget routes
+    Route::get('projects/{project}/draft-budget', [BudgetController::class, 'draft'])->name('budgets.draft');
+    Route::post('projects/{project}/draft-budget/recalculate', [BudgetController::class, 'recalculate'])->name('budgets.draft.recalculate');
+    Route::post('tasks/{task}/actual-cost', [BudgetController::class, 'updateActualCost'])->name('tasks.actualcost.update');
+    Route::get('tasks/{task}/budget-input', [BudgetController::class, 'input'])->name('tasks.budget.input');
+    Route::post('tasks/{task}/budget-input', [BudgetController::class, 'storeInput'])->name('tasks.budget.store');
+
+    // Final budget (EVM) route
+    Route::get('projects/{project}/final-budget', [FinalBudgetController::class, 'show'])->name('budgets.final');
+});
