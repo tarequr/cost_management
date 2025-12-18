@@ -2,318 +2,235 @@
 
 @push('css')
     <style>
-        .evm-table {
+        .final-budget-table {
             font-size: 11px;
+            width: 100%;
+            border-collapse: collapse;
         }
-        .evm-table th,
-        .evm-table td {
-            text-align: center;
+        .final-budget-table th, 
+        .final-budget-table td {
+            border: 1px solid #dee2e6;
+            padding: 4px;
             vertical-align: middle;
-            padding: 6px 4px;
         }
-        .evm-table th {
-            background-color: #ffc107;
-            color: #000;
-            font-weight: bold;
+        .final-budget-table thead th {
+            text-align: center;
+            background-color: #f8f9fa;
         }
-        .metrics-card {
-            border-left: 4px solid #28a745;
-        }
-        .metric-value {
-            font-size: 24px;
-            font-weight: bold;
-        }
-        .metric-label {
-            font-size: 12px;
-            color: #666;
-        }
-        .status-good {
-            background-color: #d4edda;
-            color: #155724;
-        }
-        .status-warning {
-            background-color: #fff3cd;
-            color: #856404;
-        }
-        .status-critical {
-            background-color: #f8d7da;
-            color: #721c24;
-        }
-        .monthly-table {
-            font-size: 10px;
-        }
-        .monthly-table th,
-        .monthly-table td {
-            padding: 4px 2px;
-        }
+        .bg-yellow { background-color: #ffff00 !important; }
+        .bg-orange { background-color: #f4b084 !important; } /* For highlighted cells if needed */
+        .bg-blue-light { background-color: #daeef3 !important; }
+        .bg-green-light { background-color: #e2efda !important; }
+        .bg-grey-light { background-color: #d9d9d9 !important; }
+        
+        .text-right { text-align: right; }
+        .text-center { text-align: center; }
+        .font-weight-bold { font-weight: bold; }
+        
+        /* Sticky first columns? Maybe too complex for now */
     </style>
 @endpush
 
 @section('content')
     <div class="content">
-        <div class="container-fluid">
-            <div class="page-title-box">
-                <div class="row align-items-center">
-                    <div class="col-sm-6">
-                        <h4>Final Budget (EVM) - {{ $project->name }}</h4>
-                    </div>
-                    <div class="col-sm-6 text-right">
-                        <a href="{{ route('projects.show', $project) }}" class="btn btn-primary btn-sm">
-                            <i class="fa fa-arrow-left"></i> Back to Project
-                        </a>
-                        <a href="{{ route('budgets.draft', $project) }}" class="btn btn-warning btn-sm">
-                            <i class="fa fa-edit"></i> Edit Draft Budget
-                        </a>
-                    </div>
+        <div class="container-fluid pt-3">
+            <div class="row mb-3">
+                <div class="col-sm-6">
+                    <h4>Final Budget: {{ $project->project_name }}</h4>
+                </div>
+                <div class="col-sm-6 text-right">
+                    <a href="{{ route('projects.show', $project->id) }}" class="btn btn-secondary btn-sm">
+                        <i class="fa fa-arrow-left"></i> Back to Project
+                    </a>
                 </div>
             </div>
 
-            <!-- EVM Metrics Summary -->
-            <div class="row mb-4">
-                <div class="col-md-3">
-                    <div class="card metrics-card">
-                        <div class="card-body text-center">
-                            <div class="metric-label">Budget at Completion (BAC)</div>
-                            <div class="metric-value text-primary">{{ number_format($evm['BAC'], 0) }}</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card metrics-card">
-                        <div class="card-body text-center">
-                            <div class="metric-label">Planned Value (PV)</div>
-                            <div class="metric-value text-info">{{ number_format($evm['PV'], 0) }}</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card metrics-card">
-                        <div class="card-body text-center">
-                            <div class="metric-label">Actual Cost (AC)</div>
-                            <div class="metric-value text-danger">{{ number_format($evm['AC'], 0) }}</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card metrics-card">
-                        <div class="card-body text-center">
-                            <div class="metric-label">Earned Value (EV)</div>
-                            <div class="metric-value text-success">{{ number_format($evm['EV'], 0) }}</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Performance Indices -->
-            <div class="row mb-4">
-                <div class="col-md-6">
-                    <div class="card">
-                        <div class="card-header bg-{{ $spiStatus['color'] }} text-white">
-                            <strong>Schedule Performance Index (SPI)</strong>
-                            <i class="fa fa-{{ $spiStatus['icon'] }} float-right"></i>
-                        </div>
-                        <div class="card-body text-center">
-                            <h2 class="text-{{ $spiStatus['color'] }}">{{ number_format($evm['SPI'], 2) }}</h2>
-                            <p class="mb-0">
-                                @if($evm['SPI'] >= 1.0)
-                                    Ahead of Schedule
-                                @elseif($evm['SPI'] >= 0.8)
-                                    Slightly Behind Schedule
-                                @else
-                                    Significantly Behind Schedule
-                                @endif
-                            </p>
-                            <small class="text-muted">Schedule Variance: {{ number_format($evm['SV'], 2) }}</small>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="card">
-                        <div class="card-header bg-{{ $cpiStatus['color'] }} text-white">
-                            <strong>Cost Performance Index (CPI)</strong>
-                            <i class="fa fa-{{ $cpiStatus['icon'] }} float-right"></i>
-                        </div>
-                        <div class="card-body text-center">
-                            <h2 class="text-{{ $cpiStatus['color'] }}">{{ number_format($evm['CPI'], 2) }}</h2>
-                            <p class="mb-0">
-                                @if($evm['CPI'] >= 1.0)
-                                    Under Budget
-                                @elseif($evm['CPI'] >= 0.8)
-                                    Slightly Over Budget
-                                @else
-                                    Significantly Over Budget
-                                @endif
-                            </p>
-                            <small class="text-muted">Cost Variance: {{ number_format($evm['CV'], 2) }}</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Forecasts -->
-            <div class="row mb-4">
-                <div class="col-md-4">
-                    <div class="card">
-                        <div class="card-body text-center">
-                            <div class="metric-label">Estimate at Completion (EAC)</div>
-                            <div class="metric-value text-warning">{{ number_format($evm['EAC'], 0) }}</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card">
-                        <div class="card-body text-center">
-                            <div class="metric-label">Estimate to Complete (ETC)</div>
-                            <div class="metric-value text-secondary">{{ number_format($evm['ETC'], 0) }}</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card">
-                        <div class="card-body text-center">
-                            <div class="metric-label">Variance at Completion (VAC)</div>
-                            @php $VAC = $evm['BAC'] - $evm['EAC']; @endphp
-                            <div class="metric-value {{ $VAC >= 0 ? 'text-success' : 'text-danger' }}">
-                                {{ number_format($VAC, 0) }}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Monthly EVM Data Table -->
-            <div class="row">
-                <div class="col-12">
-                    <div class="card">
-                        <div class="card-header bg-warning">
-                            <h5 class="mb-0 text-white">Monthly EVM Breakdown</h5>
-                        </div>
-                        <div class="card-body p-2">
-                            <div class="table-responsive">
-                                <table class="table table-bordered monthly-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Month</th>
-                                            <th>PV (Cumulative)</th>
-                                            <th>AC (Cumulative)</th>
-                                            <th>EV (Cumulative)</th>
-                                            <th>SV</th>
-                                            <th>CV</th>
-                                            <th>SPI</th>
-                                            <th>CPI</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach($monthlyData as $data)
-                                            <tr>
-                                                <td>{{ $data['month'] }}</td>
-                                                <td>{{ number_format($data['PV'], 0) }}</td>
-                                                <td>{{ number_format($data['AC'], 0) }}</td>
-                                                <td>{{ number_format($data['EV'], 0) }}</td>
-                                                <td class="{{ $data['SV'] >= 0 ? 'status-good' : 'status-critical' }}">
-                                                    {{ number_format($data['SV'], 0) }}
-                                                </td>
-                                                <td class="{{ $data['CV'] >= 0 ? 'status-good' : 'status-critical' }}">
-                                                    {{ number_format($data['CV'], 0) }}
-                                                </td>
-                                                <td class="{{ $data['SPI'] >= 1.0 ? 'status-good' : ($data['SPI'] >= 0.8 ? 'status-warning' : 'status-critical') }}">
-                                                    {{ number_format($data['SPI'], 2) }}
-                                                </td>
-                                                <td class="{{ $data['CPI'] >= 1.0 ? 'status-good' : ($data['CPI'] >= 0.8 ? 'status-warning' : 'status-critical') }}">
-                                                    {{ number_format($data['CPI'], 2) }}
-                                                </td>
-                                            </tr>
+            <div class="card">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="final-budget-table">
+                            <thead>
+                                <tr class="bg-yellow">
+                                    <th colspan="{{ 5 + count($months) + 1 }}" class="text-center font-weight-bold" style="font-size: 14px;">
+                                        Final Budget
+                                    </th>
+                                </tr>
+                                <tr>
+                                    <th style="min-width: 200px;">WBS Activity</th>
+                                    <th>Duration<br>(months)</th>
+                                    <th>From</th>
+                                    <th>To</th>
+                                    @foreach($months as $m)
+                                        <th style="min-width: 60px;">{{ $m['label'] }}</th>
+                                    @endforeach
+                                    <th>Total Budget</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {{-- Tasks Rows --}}
+                                @foreach($tasksData as $row)
+                                    <tr>
+                                        <td>{{ $row['task']->task_name }}</td>
+                                        <td class="text-center">{{ $row['task']->duration }}</td>
+                                        <td class="text-center">{{ \Carbon\Carbon::parse($row['task']->start_date)->format('M') }}</td>
+                                        <td class="text-center">{{ \Carbon\Carbon::parse($row['task']->end_date)->format('M') }}</td>
+                                        
+                                        @foreach($months as $m)
+                                            <td class="text-right">
+                                                @if($row['monthly'][$m['key']]['planned'] > 0)
+                                                    {{ number_format($row['monthly'][$m['key']]['planned'], 0) }}
+                                                @endif
+                                            </td>
                                         @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                                        
+                                        <td class="text-right font-weight-bold">
+                                            {{ number_format($row['total_planned'], 0) }}
+                                        </td>
+                                    </tr>
+                                @endforeach
 
-            <!-- EVM Chart -->
-            <div class="row mt-4">
-                <div class="col-12">
-                    <div class="card">
-                        <div class="card-header bg-info text-white">
-                            <h5 class="mb-0">EVM Trend Chart</h5>
-                        </div>
-                        <div class="card-body">
-                            <canvas id="evmChart" height="80"></canvas>
-                        </div>
+                                {{-- Grand Total --}}
+                                <tr class="font-weight-bold bg-light">
+                                    <td colspan="4">Grand Total</td>
+                                    @foreach($months as $m)
+                                        <td class="text-right">
+                                            {{ number_format($footerData[$m['key']]['pv_incremental'], 0) }}
+                                        </td>
+                                    @endforeach
+                                    <td class="text-right">{{ number_format($bac, 0) }}</td>
+                                </tr>
+
+                                {{-- Spacer Row --}}
+                                <tr><td colspan="{{ 5 + count($months) + 1 }}" style="height: 10px;"></td></tr>
+
+                                {{-- PV Section --}}
+                                <tr>
+                                    <td colspan="2" rowspan="3" class="text-center bg-grey-light font-weight-bold">Planned Value</td>
+                                    <td colspan="2">PV (Monthly)</td>
+                                    @foreach($months as $m)
+                                        <td class="text-right">{{ number_format($footerData[$m['key']]['pv_incremental'], 0) }}</td>
+                                    @endforeach
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2">PV (Cum)</td>
+                                    @foreach($months as $m)
+                                        <td class="text-right">{{ number_format($footerData[$m['key']]['pv_cumulative'], 0) }}</td>
+                                    @endforeach
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2">PV %</td>
+                                    @foreach($months as $m)
+                                        <td class="text-right">{{ number_format($footerData[$m['key']]['pv_pct'], 2) }}%</td>
+                                    @endforeach
+                                    <td></td>
+                                </tr>
+
+                                {{-- Progress Data Section --}}
+                                <tr>
+                                    <td colspan="2" rowspan="4" class="text-center bg-green-light font-weight-bold">Project Progress Data</td>
+                                    <td colspan="2" class="bg-green-light">Actual Cost</td>
+                                    @foreach($months as $m)
+                                        <td class="text-right bg-green-light">
+                                            {{ number_format($footerData[$m['key']]['ac_incremental'], 0) }}
+                                        </td>
+                                    @endforeach
+                                    <td class="bg-green-light"></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2" class="bg-green-light">AC (Cum)</td>
+                                    @foreach($months as $m)
+                                        <td class="text-right bg-green-light">
+                                            {{ number_format($footerData[$m['key']]['ac_cumulative'], 0) }}
+                                        </td>
+                                    @endforeach
+                                    <td class="bg-green-light"></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2" class="bg-green-light">EV %</td>
+                                    @foreach($months as $m)
+                                        <td class="text-right bg-green-light">
+                                            {{ number_format($footerData[$m['key']]['ev_pct_cumulative'], 2) }}%
+                                        </td>
+                                    @endforeach
+                                    <td class="bg-green-light"></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2" class="bg-green-light">EV</td>
+                                    @foreach($months as $m)
+                                        <td class="text-right bg-green-light">
+                                            {{ number_format($footerData[$m['key']]['ev_cumulative'], 0) }}
+                                        </td>
+                                    @endforeach
+                                    <td class="bg-green-light"></td>
+                                </tr>
+
+                                {{-- Current Performance Section --}}
+                                <tr>
+                                    <td colspan="2" rowspan="4" class="text-center bg-blue-light font-weight-bold">Current Performance</td>
+                                    <td colspan="2" class="bg-blue-light">CV (EV-AC)</td>
+                                    @foreach($months as $m)
+                                        <td class="text-right bg-blue-light {{ $footerData[$m['key']]['cv'] < 0 ? 'text-danger' : '' }}">
+                                            {{ number_format($footerData[$m['key']]['cv'], 0) }}
+                                        </td>
+                                    @endforeach
+                                    <td class="bg-blue-light"></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2" class="bg-blue-light">CPI (EV/AC)</td>
+                                    @foreach($months as $m)
+                                        <td class="text-right bg-blue-light {{ $footerData[$m['key']]['cpi'] < 1 ? 'text-danger' : '' }}">
+                                            {{ number_format($footerData[$m['key']]['cpi'], 2) }}
+                                        </td>
+                                    @endforeach
+                                    <td class="bg-blue-light"></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2" class="bg-blue-light">SV (EV-PV)</td>
+                                    @foreach($months as $m)
+                                        <td class="text-right bg-blue-light {{ $footerData[$m['key']]['sv'] < 0 ? 'text-danger' : '' }}">
+                                            {{ number_format($footerData[$m['key']]['sv'], 0) }}
+                                        </td>
+                                    @endforeach
+                                    <td class="bg-blue-light"></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2" class="bg-blue-light">SPI (EV/PV)</td>
+                                    @foreach($months as $m)
+                                        <td class="text-right bg-blue-light {{ $footerData[$m['key']]['spi'] < 1 ? 'text-danger' : '' }}">
+                                            {{ number_format($footerData[$m['key']]['spi'], 2) }}
+                                        </td>
+                                    @endforeach
+                                    <td class="bg-blue-light"></td>
+                                </tr>
+
+                                {{-- Forecast Section --}}
+                                <tr>
+                                    <td colspan="2" rowspan="2" class="text-center bg-grey-light font-weight-bold">Forecast</td>
+                                    <td colspan="2" class="bg-grey-light">EAC (BAC/CPI)</td>
+                                    @foreach($months as $m)
+                                        <td class="text-right bg-grey-light">
+                                            {{ number_format($footerData[$m['key']]['eac'], 0) }}
+                                        </td>
+                                    @endforeach
+                                    <td class="bg-grey-light"></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2" class="bg-grey-light">Est Duration</td>
+                                    @foreach($months as $m)
+                                        <td class="text-right bg-grey-light">
+                                            {{ number_format($footerData[$m['key']]['est_duration'], 1) }}
+                                        </td>
+                                    @endforeach
+                                    <td class="bg-grey-light"></td>
+                                </tr>
+
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 @endsection
-
-@push('js')
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        const ctx = document.getElementById('evmChart').getContext('2d');
-        const monthlyData = @json($monthlyData);
-        
-        const labels = monthlyData.map(d => d.month);
-        const pvData = monthlyData.map(d => d.PV);
-        const acData = monthlyData.map(d => d.AC);
-        const evData = monthlyData.map(d => d.EV);
-        
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [
-                    {
-                        label: 'Planned Value (PV)',
-                        data: pvData,
-                        borderColor: 'rgba(54, 162, 235, 1)',
-                        backgroundColor: 'rgba(54, 162, 235, 0.1)',
-                        borderWidth: 2,
-                        fill: true
-                    },
-                    {
-                        label: 'Actual Cost (AC)',
-                        data: acData,
-                        borderColor: 'rgba(255, 99, 132, 1)',
-                        backgroundColor: 'rgba(255, 99, 132, 0.1)',
-                        borderWidth: 2,
-                        fill: true
-                    },
-                    {
-                        label: 'Earned Value (EV)',
-                        data: evData,
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        backgroundColor: 'rgba(75, 192, 192, 0.1)',
-                        borderWidth: 2,
-                        fill: true
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: true,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            callback: function(value) {
-                                return value.toLocaleString();
-                            }
-                        }
-                    }
-                },
-                plugins: {
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                return context.dataset.label + ': ' + context.parsed.y.toLocaleString();
-                            }
-                        }
-                    }
-                }
-            }
-        });
-    </script>
-@endpush
