@@ -19,40 +19,138 @@ class FinalBudgetController extends Controller
     {
         $project->load('tasks.monthlyActualCosts');
         
-        // Calculate EVM metrics up to current month
-        $currentMonth = Carbon::now()->format('Y-m');
-        $evmMetrics = $this->evmService->calculateEVM($project, $currentMonth);
+        // 1. Get Project Months
+        $budgetService = app(\App\Services\MonthlyBudgetService::class);
+        $months = $budgetService->getProjectMonths($project);
         
-        // Get monthly breakdown data
-        $monthlyData = $this->evmService->getMonthlyEVMData($project);
+        // 2. Prepare Task Data
+        $tasksData = [];
+        $totals = [
+            'planned' => 0,
+        ];
         
-        // Get performance status for indicators
-        $spiStatus = $this->evmService->getPerformanceStatus($evmMetrics['SPI']);
-        $cpiStatus = $this->evmService->getPerformanceStatus($evmMetrics['CPI']);
+        // Initialize monthly totals
+        $monthlyTotals = [];
+        foreach ($months as $m) {
+            $monthlyTotals[$m['key']] = [
+                'planned' => 0,
+                'actual' => 0,
+                'ev_nominal' => 0, // Incremental EV in currency
+            ];
+        }
+
+        foreach ($project->tasks as $task) {
+            $taskMonthlyBudget = $budgetService->calculateMonthlyBudget($task);
+            $taskActuals = $task->monthlyActualCosts->keyBy('month');
+            
+            $row = [
+                'task' => $task,
+                'monthly' => [],
+                'total_planned' => $task->amount,
+            ];
+
+            foreach ($months as $m) {
+                $monthKey = $m['key'];
+                
+                // Planned
+                $planned = $taskMonthlyBudget[$monthKey] ?? 0;
+                
+                // Actual & EV
+                $actualRecord = $taskActuals->get($monthKey);
+                $actual = $actualRecord ? $actualRecord->actual_cost : 0;
+                $evPct = $actualRecord ? $actualRecord->earned_value_percentage : 0;
+                
+                // Calculate Incremental EV (assuming evPct is incremental for that month as per input logic)
+                // If evPct represents the % of the total budget "earned" in this specific month:
+                $evNominal = ($evPct / 100) * $task->amount;
+
+                $row['monthly'][$monthKey] = [
+                    'planned' => $planned,
+                    'actual' => $actual,
+                    'ev_pct' => $evPct,
+                    'ev_nominal' => $evNominal,
+                ];
+
+                // Aggregate Totals
+                $monthlyTotals[$monthKey]['planned'] += $planned;
+                $monthlyTotals[$monthKey]['actual'] += $actual;
+                $monthlyTotals[$monthKey]['ev_nominal'] += $evNominal;
+            }
+            
+            $tasksData[] = $row;
+            $totals['planned'] += $task->amount;
+        }
+
+        // 3. Calculate Cumulative and Indices for Footer
+        $footerData = [];
+        $cumPV = 0;
+        $cumAC = 0;
+        $cumEV = 0;
         
-        // Save to final_budgets table
-        FinalBudget::updateOrCreate(
-            ['project_id' => $project->id],
-            [
-                'PV' => $evmMetrics['PV'],
-                'AC' => $evmMetrics['AC'],
-                'EV' => $evmMetrics['EV'],
-                'SPI' => $evmMetrics['SPI'],
-                'CPI' => $evmMetrics['CPI'],
-                'CV' => $evmMetrics['CV'],
-                'SV' => $evmMetrics['SV'],
-                'BAC' => $evmMetrics['BAC'],
-                'ETC' => $evmMetrics['ETC'],
-                'EAC' => $evmMetrics['EAC'],
-            ]
-        );
-        
+        $bac = $totals['planned']; // Budget At Completion
+
+        foreach ($months as $m) {
+            $key = $m['key'];
+            $stats = $monthlyTotals[$key];
+            
+            // Increment cumulatives
+            $cumPV += $stats['planned'];
+            $cumAC += $stats['actual'];
+            $cumEV += $stats['ev_nominal'];
+
+            // PV % (Cumulative PV / Total Budget)
+            $pvPct = $bac > 0 ? ($cumPV / $bac) * 100 : 0;
+
+            // EV % (Cumulative EV / Total Budget)
+            $evPct = $bac > 0 ? ($cumEV / $bac) * 100 : 0;
+
+            // Indices
+            $cv = $cumEV - $cumAC;
+            $sv = $cumEV - $cumPV;
+            $cpi = $cumAC > 0 ? $cumEV / $cumAC : 0;
+            $spi = $cumPV > 0 ? $cumEV / $cumPV : 0;
+
+            // Forecasts
+            // EAC = BAC / CPI
+            $eac = $cpi > 0 ? $bac / $cpi : $bac; // simplified fallback
+            
+            // Est Duration (simplified: Total Duration / SPI)
+            // Need project duration.
+            // Let's assume passed months count? Or total project months?
+            // "Time / SPI" usually means Time Elapsed / SPI = Est Time Needed?
+            // Or Total Planned Duration / SPI = Est Total Duration.
+            // Let's use Total Project Duration (months count)
+            $totalDuration = count($months);
+            $estDuration = $spi > 0 ? $totalDuration / $spi : 0;
+
+            $footerData[$key] = [
+                'pv_incremental' => $stats['planned'],
+                'pv_cumulative' => $cumPV,
+                'pv_pct' => $pvPct,
+                
+                'ac_incremental' => $stats['actual'],
+                'ac_cumulative' => $cumAC,
+                
+                'ev_pct_cumulative' => $evPct,
+                'ev_cumulative' => $cumEV,
+                
+                'cv' => $cv,
+                'cpi' => $cpi,
+                'sv' => $sv,
+                'spi' => $spi,
+                
+                'eac' => $eac,
+                'est_duration' => $estDuration,
+            ];
+        }
+
         return view('budgets.final', [
             'project' => $project,
-            'evm' => $evmMetrics,
-            'monthlyData' => $monthlyData,
-            'spiStatus' => $spiStatus,
-            'cpiStatus' => $cpiStatus,
+            'months' => $months,
+            'tasksData' => $tasksData,
+            'totals' => $totals,
+            'footerData' => $footerData,
+            'bac' => $bac,
         ]);
     }
 }
