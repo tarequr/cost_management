@@ -60,6 +60,7 @@
                                                                placeholder="0.00"
                                                                step="0.01"
                                                                value="{{ old('inputs.'.$month['key'].'.actual_cost', $existing->actual_cost ?? '') }}">
+                                                        <small class="text-muted d-none max-msg">Max: <span class="max-val"></span></small>
                                                     </td>
                                                     <td>
                                                         <div class="input-group">
@@ -108,29 +109,97 @@
     $(document).ready(function() {
         const taskBudget = parseFloat($('table').data('task-budget')) || 0;
 
+        // Function to calculate sum of all *other* inputs
+        function getOtherInputsTotal(currentInput) {
+            let totalOthers = 0;
+            $('.cost-input').not(currentInput).each(function() {
+                totalOthers += parseFloat($(this).val()) || 0;
+            });
+            return totalOthers;
+        }
+
+        // Validate a single input and show max logic
+        function validateInput(input) {
+            const currentVal = parseFloat(input.val()) || 0;
+            const otherTotal = getOtherInputsTotal(input);
+            const remainingForThis = taskBudget - otherTotal;
+            
+            // Display Max
+            const row = input.closest('td');
+            const maxMsg = row.find('.max-msg');
+            const maxVal = row.find('.max-val');
+            
+            // Format nice number
+            let displayMax = remainingForThis > 0 ? remainingForThis : 0;
+            maxVal.text(displayMax.toFixed(2));
+            maxMsg.removeClass('d-none'); // Show it
+
+            // Check validity
+            if (currentVal > remainingForThis + 0.001) { 
+                input.addClass('is-invalid');
+                return false; 
+            } else {
+                input.removeClass('is-invalid');
+                return true;
+            }
+        }
+
         function checkTotalBudget() {
             let total = 0;
+            let isValid = true;
+
             $('.cost-input').each(function() {
-                total += parseFloat($(this).val()) || 0;
+                const val = parseFloat($(this).val()) || 0;
+                total += val;
             });
             
             $('#total-entered').text(total.toFixed(2));
             
-            if (total > taskBudget) {
+            // Re-validate all inputs individually
+            $('.cost-input').each(function() {
+                if (!validateInput($(this))) {
+                    isValid = false;
+                }
+            });
+
+            // Track previous state to avoid spamming notification
+            const wasInvalid = $('#total-error-msg').is(':visible');
+
+            if (total > taskBudget + 0.001) {
                 $('#total-error-msg').show();
-                $('#btn-submit').prop('disabled', true);
-                return false;
+                isValid = false;
+
+                if (!wasInvalid && typeof iziToast !== 'undefined') {
+                    iziToast.error({
+                        title: 'Error',
+                        message: 'Total cost exceeds project budget!',
+                        position: 'topRight'
+                    });
+                }
             } else {
                 $('#total-error-msg').hide();
-                $('#btn-submit').prop('disabled', false);
-                return true;
             }
+
+            $('#btn-submit').prop('disabled', !isValid);
         }
         
         // Initial check
         checkTotalBudget();
 
+        // On Focus: Show the max allowed for this specific field
+        $('.cost-input').on('focus', function() {
+            validateInput($(this));
+        });
+
+        // On Blur: Hide if valid
+        $('.cost-input').on('blur', function() {
+            if (!$(this).hasClass('is-invalid')) {
+                 $(this).closest('td').find('.max-msg').addClass('d-none');
+            }
+        });
+
         $('.cost-input').on('input', function() {
+            // ... existing input logic ...
             const input = $(this);
             const val = parseFloat(input.val()) || 0;
             
@@ -144,7 +213,6 @@
             const row = input.closest('tr');
             row.find('.ev-input').val(evPercent.toFixed(2));
 
-            // Validate Total
             checkTotalBudget();
         });
     });

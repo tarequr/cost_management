@@ -109,19 +109,21 @@ class BudgetController extends Controller
 
         $plannedBudget = $this->budgetService->calculateMonthlyBudget($task);
 
+        // Calculate total entered cost
+        $totalEntered = collect($validated['inputs'])->sum('actual_cost');
+        
+        // Validate Total Budget
+        if ($totalEntered > $task->amount + 0.01) { // 0.01 tolerance
+            notify()->error("Total actual cost (" . number_format($totalEntered, 2) . ") exceeds task budget (" . number_format($task->amount, 2) . ")", 'Validation Error');
+            return back()->withInput();
+        }
+
         try {
             foreach ($validated['inputs'] as $month => $data) {
                 // Only save if there's data or update existing
                 if (isset($data['actual_cost']) || isset($data['earned_value_percentage'])) {
                     
-                    // Enforce Cap
-                    $maxAllowed = $plannedBudget[$month] ?? 0;
                     $inputCost = $data['actual_cost'] ?? 0;
-
-                    if ($inputCost > $maxAllowed) {
-                        notify()->error("Cost for $month exceeds budget (" . number_format($maxAllowed, 2) . ")", 'Validation Error');
-                        return back()->withInput();
-                    }
 
                     MonthlyActualCost::updateOrCreate(
                         [
