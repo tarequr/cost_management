@@ -18,7 +18,9 @@ class BudgetController extends Controller
 
     public function draft(Project $project)
     {
-        $project->load('tasks');
+        $project->load(['tasks' => function ($query) {
+            $query->orderBy('id', 'asc');
+        }]);
         
         $breakdown = $this->budgetService->getTaskWiseMonthlyBreakdown($project);
         $totalBudget = $project->tasks->sum('amount');

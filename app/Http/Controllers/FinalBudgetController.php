@@ -17,7 +17,9 @@ class FinalBudgetController extends Controller
 
     public function show(Project $project)
     {
-        $project->load('tasks.monthlyActualCosts');
+        $project->load(['tasks' => function ($query) {
+            $query->orderBy('id', 'asc');
+        }, 'tasks.monthlyActualCosts']);
         
         // 1. Get Project Months
         $budgetService = app(\App\Services\MonthlyBudgetService::class);

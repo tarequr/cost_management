@@ -49,7 +49,10 @@ class ProjectController extends Controller
 
     public function show(Project $project)
     {
-        $project->load('tasks');
+        $project->load(['tasks' => function ($query) {
+            $query->orderBy('id', 'asc');
+        }]);
+        
         return view('projects.show', compact('project'));
     }
 }
