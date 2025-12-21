@@ -61,7 +61,7 @@
                                                 @endif
                                             </td>
                                             <td>
-                                                @if (!$task->dependency && !$loop->first)
+                                                @if (!$task->dependency)
                                                     <a href="{{ route('tasks.dependencies.index', $task) }}"
                                                         class="btn btn-sm btn-info">Manage Dependencies</a>
                                                 @else

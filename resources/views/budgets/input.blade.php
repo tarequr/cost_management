@@ -36,8 +36,8 @@
                                             <tr>
                                                 <th style="width: 20%;">Month</th>
                                                 <th style="width: 20%;">Planned Budget</th>
-                                                <th style="width: 30%;">Actual Cost</th>
-                                                <th style="width: 30%;">Earned Value % (Cumulative)</th>
+                                                <th style="width: 30%;">Updated Cost</th>
+                                                <!-- <th style="width: 30%;">Earned Value % (Cumulative)</th> -->
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -62,7 +62,7 @@
                                                                value="{{ old('inputs.'.$month['key'].'.actual_cost', $existing->actual_cost ?? '') }}">
                                                         <small class="text-muted d-none max-msg">Max: <span class="max-val"></span></small>
                                                     </td>
-                                                    <td>
+                                                    <!-- <td>
                                                         <div class="input-group">
                                                             <input type="number" 
                                                                    name="inputs[{{ $month['key'] }}][earned_value_percentage]" 
@@ -76,7 +76,7 @@
                                                                 <span class="input-group-text">%</span>
                                                             </div>
                                                         </div>
-                                                    </td>
+                                                    </td> -->
                                                 </tr>
                                             @endforeach
                                         </tbody>
