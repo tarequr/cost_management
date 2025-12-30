@@ -91,8 +91,8 @@
                                                 <td class="task-name">{{ $task->task_name }}</td>
                                                 <td>{{ $precedence }}</td>
                                                 <td>{{ $task->duration }}</td>
-                                                <td>{{ $task->start_date->format('M') }}</td>
-                                                <td>{{ $task->end_date->format('M') }}</td>
+                                                <td>{{ $task->start_date->format('M Y') }}</td>
+                                                <td>{{ $task->end_date->format('M Y') }}</td>
                                                 <td>{{ number_format($taskData['total'], 2) }}</td>
                                                 @foreach($months as $month)
                                                     @php

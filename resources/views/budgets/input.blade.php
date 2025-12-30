@@ -23,7 +23,7 @@
                             <div class="mb-4">
                                 <h6>Task Details</h6>
                                 <ul>
-                                    <li><strong>Budget:</strong> {{ number_format($task->amount, 2) }}</li>
+                                    <li><strong>Budget:</strong> {{ number_format($task->cost, 2) }}</li>
                                     <li><strong>Duration:</strong> {{ $task->start_date->format('M Y') }} - {{ $task->end_date->format('M Y') }} ({{ $task->duration }} months)</li>
                                 </ul>
                             </div>
@@ -31,7 +31,7 @@
                             <form action="{{ route('tasks.budget.store', $task) }}" method="POST">
                                 @csrf
                                 <div class="table-responsive">
-                                    <table class="table table-bordered table-striped" data-task-budget="{{ $task->amount }}">
+                                    <table class="table table-bordered table-striped" data-task-budget="{{ $task->cost }}">
                                         <thead>
                                             <tr>
                                                 <th style="width: 20%;">Month</th>
@@ -55,6 +55,7 @@
                                                     </td>
                                                     <td>
                                                         <input type="number" 
+                                                               id="inputs_{{ $month['key'] }}_actual_cost"
                                                                name="inputs[{{ $month['key'] }}][actual_cost]" 
                                                                class="form-control cost-input" 
                                                                placeholder="0.00"
@@ -87,7 +88,7 @@
                                     Total cost exceeds project budget!
                                 </div>
                                 <div class="mt-2">
-                                    <strong>Total Entered: <span id="total-entered">0.00</span> / <span id="project-budget">{{ number_format($task->amount, 2) }}</span></strong>
+                                    <strong>Total Entered: <span id="total-entered">0.00</span> / <span id="project-budget">{{ number_format($task->cost, 2) }}</span></strong>
                                 </div>
 
                                 <div class="text-right mt-3">

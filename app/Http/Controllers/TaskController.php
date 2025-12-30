@@ -15,7 +15,7 @@ class TaskController extends Controller
             'tasks.*.task_name'  => 'required|string|max:255',
             'tasks.*.start_date' => 'required|date',
             'tasks.*.end_date'   => 'required|date|after_or_equal:tasks.*.start_date',
-            'tasks.*.amount'     => 'required|numeric|min:0',
+            'tasks.*.cost'       => 'required|numeric|min:0',
         ]);
         try {
             foreach ($validated['tasks'] as $taskData) {
@@ -38,7 +38,7 @@ class TaskController extends Controller
             'task_name'  => 'required|string|max:255',
             'start_date' => 'required|date',
             'end_date'   => 'required|date|after_or_equal:start_date',
-            'amount'     => 'required|numeric|min:0',
+            'cost'       => 'required|numeric|min:0',
         ]);
         try {
             $validated['start_date'] .= '-01';

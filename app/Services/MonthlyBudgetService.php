@@ -62,7 +62,7 @@ class MonthlyBudgetService
         foreach ($period as $date) {
             $months[] = [
                 'key' => $date->format('Y-m'),
-                'label' => $date->format('M'),
+                'label' => $date->format('M Y'),
                 'year' => $date->format('Y'),
             ];
         }

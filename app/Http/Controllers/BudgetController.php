@@ -23,7 +23,7 @@ class BudgetController extends Controller
         }]);
         
         $breakdown = $this->budgetService->getTaskWiseMonthlyBreakdown($project);
-        $totalBudget = $project->tasks->sum('amount');
+        $totalBudget = $project->tasks->sum('cost');
         
         return view('budgets.draft', [
             'project' => $project,
@@ -37,7 +37,7 @@ class BudgetController extends Controller
     {
         $project->load('tasks');
         $breakdown = $this->budgetService->getTaskWiseMonthlyBreakdown($project);
-        $totalBudget = $project->tasks->sum('amount');
+        $totalBudget = $project->tasks->sum('cost');
         
         return response()->json([
             'tasks' => $breakdown['tasks'],
@@ -115,8 +115,8 @@ class BudgetController extends Controller
         $totalEntered = collect($validated['inputs'])->sum('actual_cost');
         
         // Validate Total Budget
-        if ($totalEntered > $task->amount + 0.01) { // 0.01 tolerance
-            notify()->error("Total actual cost (" . number_format($totalEntered, 2) . ") exceeds task budget (" . number_format($task->amount, 2) . ")", 'Validation Error');
+        if ($totalEntered > $task->cost + 0.01) { // 0.01 tolerance
+            notify()->error("Total actual cost (" . number_format($totalEntered, 2) . ") exceeds task budget (" . number_format($task->cost, 2) . ")", 'Validation Error');
             return back()->withInput();
         }
 

@@ -48,7 +48,7 @@ class FinalBudgetController extends Controller
             $row = [
                 'task' => $task,
                 'monthly' => [],
-                'total_planned' => $task->amount,
+                'total_planned' => $task->cost,
             ];
 
             foreach ($months as $m) {
@@ -64,7 +64,7 @@ class FinalBudgetController extends Controller
                 
                 // Calculate Incremental EV (assuming evPct is incremental for that month as per input logic)
                 // If evPct represents the % of the total budget "earned" in this specific month:
-                $evNominal = ($evPct / 100) * $task->amount;
+                $evNominal = ($evPct / 100) * $task->cost;
 
                 $row['monthly'][$monthKey] = [
                     'planned' => $planned,
@@ -80,7 +80,7 @@ class FinalBudgetController extends Controller
             }
             
             $tasksData[] = $row;
-            $totals['planned'] += $task->amount;
+            $totals['planned'] += $task->cost;
         }
 
         // 3. Calculate Cumulative and Indices for Footer
