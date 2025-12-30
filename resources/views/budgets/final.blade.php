@@ -77,8 +77,8 @@
                                         
                                         @foreach($months as $m)
                                             <td class="text-right">
-                                                @if($row['monthly'][$m['key']]['planned'] > 0)
-                                                    {{ number_format($row['monthly'][$m['key']]['planned'], 0) }}
+                                                @if($row['monthly'][$m['key']]['actual'] > 0)
+                                                    {{ number_format($row['monthly'][$m['key']]['actual'], 0) }}
                                                 @endif
                                             </td>
                                         @endforeach
@@ -94,7 +94,7 @@
                                     <td colspan="4">Grand Total</td>
                                     @foreach($months as $m)
                                         <td class="text-right">
-                                            {{ number_format($footerData[$m['key']]['pv_incremental'], 0) }}
+                                            {{ number_format($footerData[$m['key']]['ac_incremental'], 0) }}
                                         </td>
                                     @endforeach
                                     <td class="text-right">{{ number_format($bac, 0) }}</td>
