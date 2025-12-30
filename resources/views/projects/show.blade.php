@@ -39,10 +39,9 @@
                                         <th>Task Name</th>
                                         <th>Start Date</th>
                                         <th>End Date</th>
-                                        <th>Amount</th>
+                                        <th>Cost</th>
                                         <th>Duration</th>
                                         <th>Precedence</th>
-                                        <th>Dependencies</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -51,19 +50,11 @@
                                             <td>{{ $task->task_name }}</td>
                                             <td>{{ $task->start_date->format('F Y') }}</td>
                                             <td>{{ $task->end_date->format('F Y') }}</td>
-                                            <td>{{ number_format($task->amount, 2) }}</td>
+                                            <td>{{ number_format($task->cost, 2) }}</td>
                                             <td>{{ $task->duration }}</td>
                                             <td>
                                                 @if ($task->dependency)
                                                     {{ $task->dependency->dependsOnTask->task_name ?? 'N/A' }} ({{ $task->dependency->type }})
-                                                @else
-                                                    -
-                                                @endif
-                                            </td>
-                                            <td>
-                                                @if (!$task->dependency)
-                                                    <a href="{{ route('tasks.dependencies.index', $task) }}"
-                                                        class="btn btn-sm btn-info">Manage Dependencies</a>
                                                 @else
                                                     -
                                                 @endif

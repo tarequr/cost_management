@@ -73,8 +73,8 @@
                                             placeholder="Task Name" required>
                                         <input type="month" name="tasks[0][start_date]" class="form-control" required>
                                         <input type="month" name="tasks[0][end_date]" class="form-control" required>
-                                        <input type="number" name="tasks[0][amount]" class="form-control"
-                                            placeholder="Amount" required>
+                                        <input type="number" name="tasks[0][cost]" class="form-control"
+                                            placeholder="Cost" required>
                                         <button type="button" class="remove-task">Remove</button>
                                     </div>
                                 </div>
@@ -110,7 +110,7 @@
                         <input type="text" name="tasks[${taskIndex}][task_name]" class="form-control" placeholder="Task Name" required>
                         <input type="month" name="tasks[${taskIndex}][start_date]" class="form-control" min="${range.min}" max="${range.max}" required>
                         <input type="month" name="tasks[${taskIndex}][end_date]" class="form-control" min="${range.min}" max="${range.max}" required>
-                        <input type="number" name="tasks[${taskIndex}][amount]" class="form-control" placeholder="Amount" required>
+                        <input type="number" name="tasks[\${taskIndex}][cost]" class="form-control" placeholder="Cost" required>
                         <button type="button" class="remove-task">Remove</button>
                     </div>
                 `);

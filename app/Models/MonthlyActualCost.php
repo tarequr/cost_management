@@ -29,6 +29,6 @@ class MonthlyActualCost extends Model
      */
     public function getEarnedValueAttribute(): float
     {
-        return ($this->earned_value_percentage / 100) * $this->task->amount;
+        return ($this->earned_value_percentage / 100) * $this->task->cost;
     }
 }

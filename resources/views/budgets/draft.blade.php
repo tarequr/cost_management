@@ -96,17 +96,17 @@
                                                 <td>{{ number_format($taskData['total'], 2) }}</td>
                                                 @foreach($months as $month)
                                                     @php
-                                                        $amount = $taskData['monthly_budget'][$month['key']] ?? 0;
-                                                        if ($amount > 0) {
+                                                        $cost = $taskData['monthly_budget'][$month['key']] ?? 0;
+                                                        if ($cost > 0) {
                                                             if (!isset($monthlyTotals[$month['key']])) {
-                                                                $monthlyTotals[$month['key']] = 0;
+                                                                 $monthlyTotals[$month['key']] = 0;
                                                             }
-                                                            $monthlyTotals[$month['key']] += $amount;
+                                                            $monthlyTotals[$month['key']] += $cost;
                                                         }
                                                     @endphp
                                                     <td class="month-col">
-                                                        @if($amount > 0)
-                                                            {{ number_format($amount, 0) }}
+                                                        @if($cost > 0)
+                                                            {{ number_format($cost, 0) }}
                                                         @else
                                                             -
                                                         @endif

@@ -26,7 +26,7 @@ class ProjectController extends Controller
             'tasks.*.task_name'  => 'required|string|max:255',
             'tasks.*.start_date' => 'required|date',
             'tasks.*.end_date'   => 'required|date|after_or_equal:tasks.*.start_date',
-            'tasks.*.amount'     => 'required|numeric|min:0',
+            'tasks.*.cost'       => 'required|numeric|min:0',
         ]);
         try {
             $project = Project::create(['name' => $validated['name']]);
