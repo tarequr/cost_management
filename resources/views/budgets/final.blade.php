@@ -36,7 +36,7 @@
         <div class="container-fluid pt-3">
             <div class="row mb-3">
                 <div class="col-sm-6">
-                    <h4>Final Budget: {{ $project->project_name }}</h4>
+                    <h4>Final Budget: {{ $project->name }}</h4>
                 </div>
                 <div class="col-sm-6 text-right">
                     <a href="{{ route('projects.show', $project->id) }}" class="btn btn-secondary btn-sm">
@@ -126,7 +126,7 @@
                                     @endforeach
                                     <td></td>
                                 </tr>
-
+<!-- 
                                 {{-- Progress Data Section --}}
                                 <tr>
                                     <td colspan="2" rowspan="4" class="text-center bg-green-light font-weight-bold">Project Progress Data</td>
@@ -224,7 +224,7 @@
                                         </td>
                                     @endforeach
                                     <td class="bg-grey-light"></td>
-                                </tr>
+                                </tr> -->
 
                             </tbody>
                         </table>
