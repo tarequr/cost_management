@@ -94,8 +94,10 @@ class BudgetController extends Controller
 
         $existingRecords = $task->monthlyActualCosts->keyBy('month');
         $plannedBudget = $this->budgetService->calculateMonthlyBudget($task);
+        
+        $isLocked = $existingRecords->isNotEmpty();
 
-        return view('budgets.input', compact('task', 'months', 'existingRecords', 'plannedBudget'));
+        return view('budgets.input', compact('task', 'months', 'existingRecords', 'plannedBudget', 'isLocked'));
     }
 
     /**
@@ -109,35 +111,40 @@ class BudgetController extends Controller
             'inputs.*.earned_value_percentage' => 'nullable|numeric|min:0|max:100',
         ]);
 
+        // Check if already locked
+        if ($task->monthlyActualCosts()->exists()) {
+            notify()->error('Budget for this task is already finalized and cannot be updated.', 'Locked');
+            return redirect()->route('projects.show', $task->project_id);
+        }
+
         $plannedBudget = $this->budgetService->calculateMonthlyBudget($task);
 
-        // Calculate total entered cost
-        $totalEntered = collect($validated['inputs'])->sum('actual_cost');
-        
-        // Validate Total Budget
-        if ($totalEntered > $task->cost + 0.01) { // 0.01 tolerance
-            notify()->error("Total actual cost (" . number_format($totalEntered, 2) . ") exceeds task budget (" . number_format($task->cost, 2) . ")", 'Validation Error');
-            return back()->withInput();
+        // 1. Validate that EVERY month in planned budget is present and matches
+        foreach ($plannedBudget as $monthKey => $plannedAmount) {
+            if (!isset($validated['inputs'][$monthKey])) {
+                notify()->error("Data for $monthKey is missing.", 'Validation Error');
+                return back()->withInput();
+            }
+
+            $inputAmount = (float)($validated['inputs'][$monthKey]['actual_cost'] ?? 0);
+            
+            // Strict match check (exact value)
+            if (abs($inputAmount - $plannedAmount) > 0.01) {
+                notify()->error("Input for $monthKey (" . number_format($inputAmount, 2) . ") must exactly match planned budget (" . number_format($plannedAmount, 2) . ").", 'Validation Error');
+                return back()->withInput();
+            }
         }
 
         try {
             foreach ($validated['inputs'] as $month => $data) {
-                // Only save if there's data or update existing
-                if (isset($data['actual_cost']) || isset($data['earned_value_percentage'])) {
-                    
-                    $inputCost = $data['actual_cost'] ?? 0;
+                $inputCost = (float)($data['actual_cost'] ?? 0);
 
-                    MonthlyActualCost::updateOrCreate(
-                        [
-                            'task_id' => $task->id,
-                            'month' => $month,
-                        ],
-                        [
-                            'actual_cost' => $inputCost,
-                            'earned_value_percentage' => $data['earned_value_percentage'] ?? 0,
-                        ]
-                    );
-                }
+                MonthlyActualCost::create([
+                    'task_id' => $task->id,
+                    'month' => $month,
+                    'actual_cost' => $inputCost,
+                    'earned_value_percentage' => $data['earned_value_percentage'] ?? 0,
+                ]);
             }
 
             notify()->success('Budget inputs updated successfully', 'Success');
