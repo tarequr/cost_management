@@ -147,9 +147,15 @@
                                                             <strong>{{ $task->task_name }}</strong>
                                                         </td>
                                                         <td class="text-center">
-                                                            <a href="{{ route('tasks.budget.input', $task) }}" class="btn btn-info btn-sm">
-                                                                <i class="fa fa-edit"></i> Update Input
-                                                            </a>
+                                                            @if($existingRecords->isNotEmpty())
+                                                                <button class="btn btn-secondary btn-sm" disabled>
+                                                                    <i class="fa fa-lock"></i> Finalized
+                                                                </button>
+                                                            @else
+                                                                <a href="{{ route('tasks.budget.input', $task) }}" class="btn btn-info btn-sm">
+                                                                    <i class="fa fa-edit"></i> Update Input
+                                                                </a>
+                                                            @endif
                                                         </td>
                                                     </tr>
                                                 @endforeach
