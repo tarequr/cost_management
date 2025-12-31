@@ -54,4 +54,5 @@ Route::group(['middleware' => 'auth'], function () {
 
     // Final budget (EVM) route
     Route::get('projects/{project}/final-budget', [FinalBudgetController::class, 'show'])->name('budgets.final');
+    Route::get('projects/{project}/evm-calculation', [FinalBudgetController::class, 'calculate'])->name('budgets.final.calculate');
 });

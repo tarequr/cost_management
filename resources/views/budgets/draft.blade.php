@@ -49,9 +49,15 @@
                         <a href="{{ route('projects.show', $project) }}" class="btn btn-primary btn-sm">
                             <i class="fa fa-arrow-left"></i> Back to Project
                         </a>
-                        <a href="{{ route('budgets.final', $project) }}" class="btn btn-success btn-sm">
-                            <i class="fa fa-chart-line"></i> View Final Budget
-                        </a>
+                        @if($allTasksFinalized)
+                            <a href="{{ route('budgets.final', $project) }}" class="btn btn-success btn-sm">
+                                <i class="fa fa-chart-line"></i> View Final Budget
+                            </a>
+                        @else
+                            <button class="btn btn-secondary btn-sm" disabled title="All tasks must be finalized to view Final Budget">
+                                <i class="fa fa-chart-line"></i> View Final Budget
+                            </button>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -91,22 +97,22 @@
                                                 <td class="task-name">{{ $task->task_name }}</td>
                                                 <td>{{ $precedence }}</td>
                                                 <td>{{ $task->duration }}</td>
-                                                <td>{{ $task->start_date->format('M') }}</td>
-                                                <td>{{ $task->end_date->format('M') }}</td>
+                                                <td>{{ $task->start_date->format('M Y') }}</td>
+                                                <td>{{ $task->end_date->format('M Y') }}</td>
                                                 <td>{{ number_format($taskData['total'], 2) }}</td>
                                                 @foreach($months as $month)
                                                     @php
-                                                        $amount = $taskData['monthly_budget'][$month['key']] ?? 0;
-                                                        if ($amount > 0) {
+                                                        $cost = $taskData['monthly_budget'][$month['key']] ?? 0;
+                                                        if ($cost > 0) {
                                                             if (!isset($monthlyTotals[$month['key']])) {
-                                                                $monthlyTotals[$month['key']] = 0;
+                                                                 $monthlyTotals[$month['key']] = 0;
                                                             }
-                                                            $monthlyTotals[$month['key']] += $amount;
+                                                            $monthlyTotals[$month['key']] += $cost;
                                                         }
                                                     @endphp
                                                     <td class="month-col">
-                                                        @if($amount > 0)
-                                                            {{ number_format($amount, 0) }}
+                                                        @if($cost > 0)
+                                                            {{ number_format($cost, 0) }}
                                                         @else
                                                             -
                                                         @endif
@@ -147,9 +153,15 @@
                                                             <strong>{{ $task->task_name }}</strong>
                                                         </td>
                                                         <td class="text-center">
-                                                            <a href="{{ route('tasks.budget.input', $task) }}" class="btn btn-info btn-sm">
-                                                                <i class="fa fa-edit"></i> Update Input
-                                                            </a>
+                                                            @if($existingRecords->isNotEmpty())
+                                                                <button class="btn btn-secondary btn-sm" disabled>
+                                                                    <i class="fa fa-lock"></i> Finalized
+                                                                </button>
+                                                            @else
+                                                                <a href="{{ route('tasks.budget.input', $task) }}" class="btn btn-info btn-sm">
+                                                                    <i class="fa fa-edit"></i> Update Input
+                                                                </a>
+                                                            @endif
                                                         </td>
                                                     </tr>
                                                 @endforeach

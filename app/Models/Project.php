@@ -22,4 +22,22 @@ class Project extends Model
     {
         return $this->hasOne(FinalBudget::class);
     }
+
+    /**
+     * Check if all tasks in the project have at least one actual cost record.
+     */
+    public function allTasksFinalized(): bool
+    {
+        if ($this->tasks->isEmpty()) {
+            return false;
+        }
+
+        foreach ($this->tasks as $task) {
+            if (!$task->monthlyActualCosts()->exists()) {
+                return false;
+            }
+        }
+
+        return true;
+    }
 }

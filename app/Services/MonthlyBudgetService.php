@@ -21,14 +21,14 @@ class MonthlyBudgetService
             return $monthlyBudget;
         }
 
-        $monthlyAmount = round($task->amount / $task->duration, 2);
+        $monthlyCost = round($task->cost / $task->duration, 2);
         
         // Create period from start_date to end_date
         $period = CarbonPeriod::create($task->start_date, '1 month', $task->end_date);
         
         foreach ($period as $date) {
             $monthKey = $date->format('Y-m');
-            $monthlyBudget[$monthKey] = $monthlyAmount;
+            $monthlyBudget[$monthKey] = $monthlyCost;
         }
 
         return $monthlyBudget;
@@ -62,7 +62,7 @@ class MonthlyBudgetService
         foreach ($period as $date) {
             $months[] = [
                 'key' => $date->format('Y-m'),
-                'label' => $date->format('M'),
+                'label' => $date->format('M Y'),
                 'year' => $date->format('Y'),
             ];
         }
@@ -80,11 +80,11 @@ class MonthlyBudgetService
         foreach ($project->tasks as $task) {
             $taskBudget = $this->calculateMonthlyBudget($task);
             
-            foreach ($taskBudget as $month => $amount) {
+            foreach ($taskBudget as $month => $cost) {
                 if (!isset($projectBudget[$month])) {
                     $projectBudget[$month] = 0;
                 }
-                $projectBudget[$month] += $amount;
+                $projectBudget[$month] += $cost;
             }
         }
 
@@ -105,7 +105,7 @@ class MonthlyBudgetService
             $breakdown[] = [
                 'task' => $task,
                 'monthly_budget' => $taskMonthly,
-                'total' => $task->amount,
+                'total' => $task->cost,
             ];
         }
 

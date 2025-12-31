@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 class Task extends Model
 {
     protected $fillable = [
-        'project_id', 'task_name', 'start_date', 'end_date', 'amount', 'duration',
+        'project_id', 'task_name', 'start_date', 'end_date', 'cost', 'duration',
     ];
 
     protected $casts = [

@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class DraftBudget extends Model
 {
     protected $fillable = [
-        'project_id', 'monthly_breakdown', 'total_amount', 'total_duration',
+        'project_id', 'monthly_breakdown', 'total_cost', 'total_duration',
     ];
 
     protected $casts = [

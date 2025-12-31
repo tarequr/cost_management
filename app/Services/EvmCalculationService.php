@@ -22,7 +22,7 @@ class EVMCalculationService
         $asOfMonth = $asOfMonth ?? Carbon::now()->format('Y-m');
         
         // Calculate BAC (Budget at Completion) - Total project budget
-        $BAC = $project->tasks->sum('amount');
+        $BAC = $project->tasks->sum('cost');
 
         // Calculate PV (Planned Value) - Budget for work scheduled up to asOfMonth
         $PV = $this->calculatePlannedValue($project, $asOfMonth);
@@ -68,11 +68,14 @@ class EVMCalculationService
         $PV = 0;
 
         foreach ($project->tasks as $task) {
-            $monthlyBudget = $this->budgetService->calculateMonthlyBudget($task);
-            
-            foreach ($monthlyBudget as $month => $amount) {
-                if ($month <= $asOfMonth) {
-                    $PV += $amount;
+            // Only include tasks that have been finalized (have actual cost records)
+            if ($task->monthlyActualCosts()->exists()) {
+                $monthlyBudget = $this->budgetService->calculateMonthlyBudget($task);
+                
+                foreach ($monthlyBudget as $month => $amount) {
+                    if ($month <= $asOfMonth) {
+                        $PV += $amount;
+                    }
                 }
             }
         }
@@ -112,7 +115,7 @@ class EVMCalculationService
             
             foreach ($actualCosts as $cost) {
                 // EV = (% Complete) × Task Budget
-                $monthlyEV = ($cost->earned_value_percentage / 100) * $task->amount;
+                $monthlyEV = ($cost->earned_value_percentage / 100) * $task->cost;
                 $EV += $monthlyEV;
             }
         }

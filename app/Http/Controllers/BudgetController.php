@@ -23,13 +23,14 @@ class BudgetController extends Controller
         }]);
         
         $breakdown = $this->budgetService->getTaskWiseMonthlyBreakdown($project);
-        $totalBudget = $project->tasks->sum('amount');
+        $totalBudget = $project->tasks->sum('cost');
         
         return view('budgets.draft', [
             'project' => $project,
             'tasks' => $breakdown['tasks'],
             'months' => $breakdown['months'],
             'totalBudget' => $totalBudget,
+            'allTasksFinalized' => $project->allTasksFinalized(),
         ]);
     }
 
@@ -37,7 +38,7 @@ class BudgetController extends Controller
     {
         $project->load('tasks');
         $breakdown = $this->budgetService->getTaskWiseMonthlyBreakdown($project);
-        $totalBudget = $project->tasks->sum('amount');
+        $totalBudget = $project->tasks->sum('cost');
         
         return response()->json([
             'tasks' => $breakdown['tasks'],
@@ -94,8 +95,10 @@ class BudgetController extends Controller
 
         $existingRecords = $task->monthlyActualCosts->keyBy('month');
         $plannedBudget = $this->budgetService->calculateMonthlyBudget($task);
+        
+        $isLocked = $existingRecords->isNotEmpty();
 
-        return view('budgets.input', compact('task', 'months', 'existingRecords', 'plannedBudget'));
+        return view('budgets.input', compact('task', 'months', 'existingRecords', 'plannedBudget', 'isLocked'));
     }
 
     /**
@@ -109,35 +112,34 @@ class BudgetController extends Controller
             'inputs.*.earned_value_percentage' => 'nullable|numeric|min:0|max:100',
         ]);
 
-        $plannedBudget = $this->budgetService->calculateMonthlyBudget($task);
+        // Check if already locked
+        if ($task->monthlyActualCosts()->exists()) {
+            notify()->error('Budget for this task is already finalized and cannot be updated.', 'Locked');
+            return redirect()->route('projects.show', $task->project_id);
+        }
 
-        // Calculate total entered cost
-        $totalEntered = collect($validated['inputs'])->sum('actual_cost');
-        
-        // Validate Total Budget
-        if ($totalEntered > $task->amount + 0.01) { // 0.01 tolerance
-            notify()->error("Total actual cost (" . number_format($totalEntered, 2) . ") exceeds task budget (" . number_format($task->amount, 2) . ")", 'Validation Error');
+        // 1. Calculate total input amount
+        $totalInputAmount = 0;
+        foreach ($validated['inputs'] as $month => $data) {
+            $totalInputAmount += (float)($data['actual_cost'] ?? 0);
+        }
+
+        // 2. Validate against total task cost (exact match)
+        if (abs($totalInputAmount - $task->cost) > 0.01) {
+            notify()->error("Total input amount (" . number_format($totalInputAmount, 2) . ") must exactly match task budget (" . number_format($task->cost, 2) . ").", 'Validation Error');
             return back()->withInput();
         }
 
         try {
             foreach ($validated['inputs'] as $month => $data) {
-                // Only save if there's data or update existing
-                if (isset($data['actual_cost']) || isset($data['earned_value_percentage'])) {
-                    
-                    $inputCost = $data['actual_cost'] ?? 0;
+                $inputCost = (float)($data['actual_cost'] ?? 0);
 
-                    MonthlyActualCost::updateOrCreate(
-                        [
-                            'task_id' => $task->id,
-                            'month' => $month,
-                        ],
-                        [
-                            'actual_cost' => $inputCost,
-                            'earned_value_percentage' => $data['earned_value_percentage'] ?? 0,
-                        ]
-                    );
-                }
+                MonthlyActualCost::create([
+                    'task_id' => $task->id,
+                    'month' => $month,
+                    'actual_cost' => $inputCost,
+                    'earned_value_percentage' => $data['earned_value_percentage'] ?? 0,
+                ]);
             }
 
             notify()->success('Budget inputs updated successfully', 'Success');
