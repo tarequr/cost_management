@@ -30,6 +30,7 @@ class BudgetController extends Controller
             'tasks' => $breakdown['tasks'],
             'months' => $breakdown['months'],
             'totalBudget' => $totalBudget,
+            'allTasksFinalized' => $project->allTasksFinalized(),
         ]);
     }
 

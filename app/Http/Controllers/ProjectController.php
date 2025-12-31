@@ -99,6 +99,9 @@ class ProjectController extends Controller
             $query->orderBy('id', 'asc');
         }]);
         
-        return view('projects.show', compact('project'));
+        return view('projects.show', [
+            'project' => $project,
+            'allTasksFinalized' => $project->allTasksFinalized(),
+        ]);
     }
 }

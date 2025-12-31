@@ -66,8 +66,12 @@
                             <div class="mt-4 text-center">
                                 <a href="{{ route('budgets.draft', $project) }}" class="btn btn-warning btn-sm">View Draft
                                     Budget</a>
-                                <a href="{{ route('budgets.final', $project) }}" class="btn btn-success btn-sm">View Final
-                                    Budget (EVM)</a>
+                                @if($allTasksFinalized)
+                                    <a href="{{ route('budgets.final', $project) }}" class="btn btn-success btn-sm">View Final
+                                        Budget (EVM)</a>
+                                @else
+                                    <button class="btn btn-secondary btn-sm" disabled title="All tasks must be finalized to view Final Budget">View Final Budget (EVM)</button>
+                                @endif
                                 <a href="{{ route('projects.index') }}" class="btn btn-secondary btn-sm">Back to
                                     Projects</a>
                             </div>

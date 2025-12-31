@@ -49,9 +49,15 @@
                         <a href="{{ route('projects.show', $project) }}" class="btn btn-primary btn-sm">
                             <i class="fa fa-arrow-left"></i> Back to Project
                         </a>
-                        <a href="{{ route('budgets.final', $project) }}" class="btn btn-success btn-sm">
-                            <i class="fa fa-chart-line"></i> View Final Budget
-                        </a>
+                        @if($allTasksFinalized)
+                            <a href="{{ route('budgets.final', $project) }}" class="btn btn-success btn-sm">
+                                <i class="fa fa-chart-line"></i> View Final Budget
+                            </a>
+                        @else
+                            <button class="btn btn-secondary btn-sm" disabled title="All tasks must be finalized to view Final Budget">
+                                <i class="fa fa-chart-line"></i> View Final Budget
+                            </button>
+                        @endif
                     </div>
                 </div>
             </div>
