@@ -191,13 +191,88 @@ class FinalBudgetController extends Controller
         // 4. CV = EV - AC
         $cv = $ev - $ac;
 
-        // 5. Total Project BAC
+        // 5. Indices (CPI, SPI)
+        $cpi = $ac > 0 ? $ev / $ac : 0;
+        $spi = $pv > 0 ? $ev / $pv : 0;
+
+        // 6. Total Project BAC
         $bac = $project->tasks->sum('cost');
 
-        // 6. Project Duration Text
+        // 7. Forecasts
+        $eac = $cpi > 0 ? $bac / $cpi : $bac;
+        
+        // Est Duration (Total Project Months / SPI)
         $months = $budgetService->getProjectMonths($project);
+        $totalDuration = count($months);
+        $estDuration = $spi > 0 ? $totalDuration / $spi : $totalDuration;
+
         $fromMonth = count($months) > 0 ? $months[0]['label'] : 'N/A';
         $toMonth = count($months) > 0 ? $months[count($months) - 1]['label'] : 'N/A';
+
+        // Prepare Chart Data
+        $chartLabels = [];
+        $chartPV = [];
+        $chartAC = [];
+        $chartEV = [];
+        $chartCV = [];
+        $chartSV = [];
+
+        $cumPV = 0;
+        $cumAC = 0;
+        $cumEV = 0;
+
+        $hasReachedSelected = false;
+
+        foreach ($months as $m) {
+            $monthKey = $m['key'];
+            $chartLabels[] = $m['label'];
+
+            // Calculate incremental values for this month
+            if ($monthKey === $selectedMonth) {
+                $incPV = $pv; 
+                $incAC = $ac; 
+                $incEV = $ev;
+                $hasReachedSelected = true;
+            } else {
+                $incPV = 0;
+                $incAC = 0;
+                $incEV = 0;
+
+                foreach ($project->tasks as $task) {
+                    if ($task->monthlyActualCosts()->exists()) {
+                        $taskMonthlyBudget = $budgetService->calculateMonthlyBudget($task);
+                        $incPV += $taskMonthlyBudget[$monthKey] ?? 0;
+
+                        if (!$hasReachedSelected) {
+                            $actualRecord = $task->monthlyActualCosts()->where('month', $monthKey)->first();
+                            if ($actualRecord) {
+                                $incAC += $actualRecord->actual_cost;
+                                $incEV += ($actualRecord->earned_value_percentage / 100) * $task->cost;
+                            }
+                        }
+                    }
+                }
+            }
+
+            $cumPV += $incPV;
+            $chartPV[] = $cumPV;
+
+            if (!$hasReachedSelected || $monthKey === $selectedMonth) {
+                $cumAC += $incAC;
+                $cumEV += $incEV;
+                $chartAC[] = $cumAC;
+                $chartEV[] = $cumEV;
+                
+                // Incremental Variances for the bar chart
+                $chartCV[] = $incEV - $incAC;
+                $chartSV[] = $incEV - $incPV;
+            } else {
+                $chartAC[] = null;
+                $chartEV[] = null;
+                $chartCV[] = null;
+                $chartSV[] = null;
+            }
+        }
 
         return view('budgets.calculator', [
             'project' => $project,
@@ -208,9 +283,19 @@ class FinalBudgetController extends Controller
             'ev' => $ev,
             'sv' => $sv,
             'cv' => $cv,
+            'cpi' => $cpi,
+            'spi' => $spi,
             'bac' => $bac,
+            'eac' => $eac,
+            'est_duration' => $estDuration,
             'progress' => $progress,
             'selectedMonth' => $selectedMonth,
+            'chartLabels' => $chartLabels,
+            'chartPV' => $chartPV,
+            'chartAC' => $chartAC,
+            'chartEV' => $chartEV,
+            'chartCV' => $chartCV,
+            'chartSV' => $chartSV,
         ]);
     }
 }
