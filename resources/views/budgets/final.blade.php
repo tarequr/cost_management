@@ -229,6 +229,36 @@
                             </tbody>
                         </table>
                     </div>
+                    
+                    {{-- New EVM Input Form --}}
+                    <div class="p-3 border-top bg-light">
+                        <form action="{{ route('budgets.final.calculate', $project->id) }}" method="GET">
+                            <div class="row align-items-end" style="margin-top: 20px;">
+                                <div class="col-md-3 p-0">
+                                    <div class="form-group mb-0">
+                                        <label for="progress" class="small font-weight-bold">Percentage of Work (%)</label>
+                                        <input type="number" name="progress" id="progress" class="form-control form-control-sm" placeholder="e.g. 14.35" step="0.01" min="0" max="100" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 p-0">
+                                    <div class="form-group mb-0">
+                                        <label for="actual_cost" class="small font-weight-bold">Actual Cost (AC)</label>
+                                        <input type="number" name="actual_cost" id="actual_cost" class="form-control form-control-sm" placeholder="Enter AC" step="0.01" min="0" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 p-0">
+                                    <div class="form-group mb-0">
+                                        <label for="month" class="small font-weight-bold">Reporting Month</label>
+                                        <input type="month" name="month" id="month" class="form-control form-control-sm" value="{{ now()->format('Y-m') }}" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <button type="submit" class="btn btn-primary btn-sm">Calculation</button>
+                                    <button type="reset" class="btn btn-outline-secondary btn-sm">Reset</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>

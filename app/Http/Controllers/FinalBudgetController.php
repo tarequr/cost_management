@@ -157,4 +157,60 @@ class FinalBudgetController extends Controller
             'bac' => $bac,
         ]);
     }
+
+    public function calculate(Project $project, \Illuminate\Http\Request $request)
+    {
+        $validated = $request->validate([
+            'progress' => 'required|numeric|min:0|max:100',
+            'actual_cost' => 'required|numeric|min:0',
+            'month' => 'required|string', // Format: YYYY-MM
+        ]);
+
+        $progress = (float)$validated['progress'];
+        $ac = (float)$validated['actual_cost'];
+        $selectedMonth = $validated['month'];
+
+        // 1. Calculate PV for the selected month (incremental)
+        $budgetService = app(\App\Services\MonthlyBudgetService::class);
+        $pv = 0;
+
+        foreach ($project->tasks as $task) {
+            // Only include finalized tasks
+            if ($task->monthlyActualCosts()->exists()) {
+                $taskMonthlyBudget = $budgetService->calculateMonthlyBudget($task);
+                $pv += $taskMonthlyBudget[$selectedMonth] ?? 0;
+            }
+        }
+
+        // 2. EV = Progress % * AC (User's specific formula)
+        $ev = ($progress / 100) * $ac;
+
+        // 3. SV = EV - PV
+        $sv = $ev - $pv;
+
+        // 4. CV = EV - AC
+        $cv = $ev - $ac;
+
+        // 5. Total Project BAC
+        $bac = $project->tasks->sum('cost');
+
+        // 6. Project Duration Text
+        $months = $budgetService->getProjectMonths($project);
+        $fromMonth = count($months) > 0 ? $months[0]['label'] : 'N/A';
+        $toMonth = count($months) > 0 ? $months[count($months) - 1]['label'] : 'N/A';
+
+        return view('budgets.calculator', [
+            'project' => $project,
+            'fromMonth' => $fromMonth,
+            'toMonth' => $toMonth,
+            'pv' => $pv,
+            'ac' => $ac,
+            'ev' => $ev,
+            'sv' => $sv,
+            'cv' => $cv,
+            'bac' => $bac,
+            'progress' => $progress,
+            'selectedMonth' => $selectedMonth,
+        ]);
+    }
 }
