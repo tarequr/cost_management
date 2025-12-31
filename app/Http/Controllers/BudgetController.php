@@ -118,22 +118,16 @@ class BudgetController extends Controller
             return redirect()->route('projects.show', $task->project_id);
         }
 
-        $plannedBudget = $this->budgetService->calculateMonthlyBudget($task);
+        // 1. Calculate total input amount
+        $totalInputAmount = 0;
+        foreach ($validated['inputs'] as $month => $data) {
+            $totalInputAmount += (float)($data['actual_cost'] ?? 0);
+        }
 
-        // 1. Validate that EVERY month in planned budget is present and matches
-        foreach ($plannedBudget as $monthKey => $plannedAmount) {
-            if (!isset($validated['inputs'][$monthKey])) {
-                notify()->error("Data for $monthKey is missing.", 'Validation Error');
-                return back()->withInput();
-            }
-
-            $inputAmount = (float)($validated['inputs'][$monthKey]['actual_cost'] ?? 0);
-            
-            // Strict match check (exact value)
-            if (abs($inputAmount - $plannedAmount) > 0.01) {
-                notify()->error("Input for $monthKey (" . number_format($inputAmount, 2) . ") must exactly match planned budget (" . number_format($plannedAmount, 2) . ").", 'Validation Error');
-                return back()->withInput();
-            }
+        // 2. Validate against total task cost (exact match)
+        if (abs($totalInputAmount - $task->cost) > 0.01) {
+            notify()->error("Total input amount (" . number_format($totalInputAmount, 2) . ") must exactly match task budget (" . number_format($task->cost, 2) . ").", 'Validation Error');
+            return back()->withInput();
         }
 
         try {

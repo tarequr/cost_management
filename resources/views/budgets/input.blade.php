@@ -69,7 +69,7 @@
                                                                {{ $isLocked ? 'readonly' : '' }}
                                                                data-planned="{{ $plannedAmount }}"
                                                                value="{{ old('inputs.'.$month['key'].'.actual_cost', $existing->actual_cost ?? '') }}">
-                                                        <div class="invalid-feedback">Value must match planned budget exactly.</div>
+                                                        <div class="invalid-feedback">Total entered cost must exactly match the task budget.</div>
                                                     </td>
                                                 </tr>
                                             @endforeach
@@ -78,7 +78,7 @@
                                 </div>
                                 
                                 <div id="total-error-msg" class="alert alert-danger mt-3" style="display:none;">
-                                    One or more fields do not match the planned budget!
+                                    Total entered cost must exactly match the task budget!
                                 </div>
                                 <div class="mt-2">
                                     <strong>Total Entered: <span id="total-entered">0.00</span> / <span id="project-budget">{{ number_format($task->cost, 2) }}</span></strong>
@@ -121,38 +121,28 @@
         }
 
         function validateForm() {
-            let allMatched = true;
             let allFilled = true;
+            let total = calculateTotal();
 
             $('.cost-input').each(function() {
-                const input = $(this);
-                const plannedValue = parseFloat(input.data('planned')) || 0;
-                const inputValue = parseFloat(input.val()) || 0;
-
-                if (input.val() === '') {
+                if ($(this).val() === '') {
                     allFilled = false;
-                    allMatched = false;
-                    input.removeClass('is-invalid');
-                } else if (Math.abs(inputValue - plannedValue) > 0.01) {
-                    allMatched = false;
-                    input.addClass('is-invalid');
-                } else {
-                    input.removeClass('is-invalid');
                 }
             });
 
-            const total = calculateTotal();
-            
-            if (!allFilled || !allMatched) {
+            if (Math.abs(total - taskBudget) > 0.01) {
+                $('.cost-input').addClass('is-invalid');
+                $('#total-error-msg').show();
                 $('#btn-submit').prop('disabled', true);
-                if (allFilled && !allMatched) {
-                    $('#total-error-msg').show();
-                } else {
-                    $('#total-error-msg').hide();
-                }
             } else {
+                $('.cost-input').removeClass('is-invalid');
                 $('#total-error-msg').hide();
-                $('#btn-submit').prop('disabled', false);
+                
+                if (allFilled) {
+                    $('#btn-submit').prop('disabled', false);
+                } else {
+                    $('#btn-submit').prop('disabled', true);
+                }
             }
         }
 
