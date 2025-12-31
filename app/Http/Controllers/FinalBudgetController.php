@@ -74,7 +74,9 @@ class FinalBudgetController extends Controller
                 ];
 
                 // Aggregate Totals
-                $monthlyTotals[$monthKey]['planned'] += $planned;
+                if ($actualRecord) {
+                    $monthlyTotals[$monthKey]['planned'] += $planned;
+                }
                 $monthlyTotals[$monthKey]['actual'] += $actual;
                 $monthlyTotals[$monthKey]['ev_nominal'] += $evNominal;
             }
