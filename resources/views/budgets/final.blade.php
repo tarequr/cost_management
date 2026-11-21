@@ -234,33 +234,60 @@
                     <div class="p-3 border-top bg-light">
                         <form action="{{ route('budgets.final.calculate', $project->id) }}" method="GET">
                             <div class="row align-items-end" style="margin-top: 20px;">
-                                <div class="col-md-3 p-0">
-                                    <div class="form-group mb-0">
-                                        <label for="progress" class="small font-weight-bold">Percentage of Work (%)</label>
-                                        <input type="number" name="progress" id="progress" class="form-control form-control-sm" placeholder="e.g. 14.35" step="0.01" min="0" max="100" required>
-                                    </div>
-                                </div>
-                                <div class="col-md-3 p-0">
-                                    <div class="form-group mb-0">
-                                        <label for="actual_cost" class="small font-weight-bold">Actual Cost (AC)</label>
-                                        <input type="number" name="actual_cost" id="actual_cost" class="form-control form-control-sm" placeholder="Enter AC" step="0.01" min="0" required>
-                                    </div>
-                                </div>
-                                <div class="col-md-3 p-0">
+                                <div class="col-md-4 p-0">
                                     <div class="form-group mb-0">
                                         <label for="month" class="small font-weight-bold">Reporting Month</label>
-                                        <input type="month" name="month" id="month" class="form-control form-control-sm" value="{{ now()->format('Y-m') }}" required>
+                                        <input type="month" name="month" id="month" class="form-control form-control-sm" value="{{ $months[0]['key'] ?? now()->format('Y-m') }}" required>
                                     </div>
                                 </div>
-                                <div class="col-md-3">
+                                <div class="col-md-4">
                                     <button type="submit" class="btn btn-primary btn-sm">Calculation</button>
-                                    <button type="reset" class="btn btn-outline-secondary btn-sm">Reset</button>
+                                    <button type="reset" class="btn btn-outline-secondary btn-sm" id="evm-reset">Reset</button>
                                 </div>
                             </div>
+                            <p class="small text-muted mt-3 mb-1">Enter Percentage of Work and Actual Cost for every month from the first month up to the Reporting Month.</p>
+                            <div id="evm-entries"></div>
                         </form>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+@push('js')
+<script>
+    (function () {
+        const months = @json($months);
+        const monthInput = document.getElementById('month');
+        const box = document.getElementById('evm-entries');
+        const saved = {};
+
+        function render() {
+            box.querySelectorAll('[data-key]').forEach(r => {
+                saved[r.dataset.key] = {
+                    p: r.querySelector('.ev-p').value,
+                    a: r.querySelector('.ev-a').value
+                };
+            });
+            const sel = monthInput.value;
+            let html = '';
+            for (const m of months) {
+                if (m.key > sel) break;
+                const v = saved[m.key] || {p: '', a: ''};
+                html += `<div class="row align-items-end mb-2" data-key="${m.key}">
+                    <div class="col-md-2 p-0 small font-weight-bold pb-1">${m.label}</div>
+                    <div class="col-md-3 p-0 pr-2"><input type="number" name="entries[${m.key}][progress]" class="form-control form-control-sm ev-p" placeholder="Percentage of Work (%)" step="0.01" min="0" max="100" value="${v.p}" required></div>
+                    <div class="col-md-3 p-0"><input type="number" name="entries[${m.key}][actual_cost]" class="form-control form-control-sm ev-a" placeholder="Actual Cost (AC)" step="0.01" min="0" value="${v.a}" required></div>
+                </div>`;
+            }
+            box.innerHTML = html;
+        }
+
+        monthInput.addEventListener('change', render);
+        document.getElementById('evm-reset').addEventListener('click', function () {
+            setTimeout(() => { Object.keys(saved).forEach(k => delete saved[k]); box.innerHTML = ''; render(); }, 0);
+        });
+        render();
+    })();
+</script>
+@endpush
 @endsection

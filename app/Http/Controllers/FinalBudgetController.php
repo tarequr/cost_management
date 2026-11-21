@@ -160,118 +160,97 @@ class FinalBudgetController extends Controller
     public function calculate(Project $project, \Illuminate\Http\Request $request)
     {
         $validated = $request->validate([
-            'progress' => 'required|numeric|min:0|max:100',
-            'actual_cost' => 'required|numeric|min:0',
-            'month' => 'required|string', // Format: YYYY-MM
+            'month' => 'required|string', // Reporting month, format: YYYY-MM
+            'entries' => 'required|array|min:1',
+            'entries.*.progress' => 'required|numeric|min:0|max:100',
+            'entries.*.actual_cost' => 'required|numeric|min:0',
         ]);
 
-        $progress = (float)$validated['progress'];
-        $ac = (float)$validated['actual_cost'];
         $selectedMonth = $validated['month'];
+        $entries = $validated['entries'];
 
-        // 1. Calculate PV for the selected month (incremental)
         $budgetService = app(\App\Services\MonthlyBudgetService::class);
-        $pv = 0;
+        $months = $budgetService->getProjectMonths($project);
 
+        // PV per month = final budget values (sum of finalized task monthly amounts)
+        $monthlyPV = [];
         foreach ($project->tasks as $task) {
-            // Only include finalized tasks
-            if ($task->monthlyActualCosts()->exists()) {
-                $taskMonthlyBudget = $budgetService->calculateMonthlyBudget($task);
-                $pv += $taskMonthlyBudget[$selectedMonth] ?? 0;
+            foreach ($task->monthlyActualCosts as $record) {
+                $monthlyPV[$record->month] = ($monthlyPV[$record->month] ?? 0) + $record->actual_cost;
             }
         }
 
-        // 2. EV = Progress % * AC (User's specific formula)
-        $ev = ($progress / 100) * $ac;
-
-        // 3. SV = EV - PV
-        $sv = $ev - $pv;
-
-        // 4. CV = EV - AC
-        $cv = $ev - $ac;
-
-        // 5. Indices (CPI, SPI)
-        $cpi = $ac > 0 ? $ev / $ac : 0;
-        $spi = $pv > 0 ? $ev / $pv : 0;
-
-        // 6. Total Project BAC
-        $bac = $project->tasks->sum('cost');
-
-        // 7. Forecasts
-        $eac = $cpi > 0 ? $bac / $cpi : $bac;
-
-        // Est Duration (Total Project Months / SPI)
-        $months = $budgetService->getProjectMonths($project);
-        $totalDuration = count($months);
-        $estDuration = $spi > 0 ? $totalDuration / $spi : $totalDuration;
-
-        $fromMonth = count($months) > 0 ? $months[0]['label'] : 'N/A';
-        $toMonth = count($months) > 0 ? $months[count($months) - 1]['label'] : 'N/A';
-
-        // Prepare Chart Data
         $chartLabels = [];
         $chartPV = [];
         $chartAC = [];
         $chartEV = [];
         $chartCV = [];
         $chartSV = [];
+        $rows = [];
 
         $cumPV = 0;
         $cumAC = 0;
         $cumEV = 0;
-
-        $hasReachedSelected = false;
+        $pv = 0; // cumulative PV up to the reporting month
+        $reached = false;
 
         foreach ($months as $m) {
-            $monthKey = $m['key'];
+            $key = $m['key'];
             $chartLabels[] = $m['label'];
 
-            // Calculate incremental values for this month
-            if ($monthKey === $selectedMonth) {
-                $incPV = $pv;
-                $incAC = $ac;
-                $incEV = $ev;
-                $hasReachedSelected = true;
-            } else {
-                $incPV = 0;
-                $incAC = 0;
-                $incEV = 0;
-
-                foreach ($project->tasks as $task) {
-                    if ($task->monthlyActualCosts()->exists()) {
-                        $taskMonthlyBudget = $budgetService->calculateMonthlyBudget($task);
-                        $incPV += $taskMonthlyBudget[$monthKey] ?? 0;
-
-                        if (!$hasReachedSelected) {
-                            $actualRecord = $task->monthlyActualCosts()->where('month', $monthKey)->first();
-                            if ($actualRecord) {
-                                $incAC += $actualRecord->actual_cost;
-                                $incEV += ($actualRecord->earned_value_percentage / 100) * $task->cost;
-                            }
-                        }
-                    }
-                }
-            }
-
+            $incPV = (float)($monthlyPV[$key] ?? 0);
             $cumPV += $incPV;
             $chartPV[] = $cumPV;
 
-            if (!$hasReachedSelected || $monthKey === $selectedMonth) {
+            if (!$reached && isset($entries[$key])) {
+                $progress = (float)$entries[$key]['progress'];
+                $incAC = (float)$entries[$key]['actual_cost'];
+                $incEV = ($progress / 100) * $incAC;
+
                 $cumAC += $incAC;
                 $cumEV += $incEV;
+
                 $chartAC[] = $cumAC;
                 $chartEV[] = $cumEV;
-
-                // Incremental Variances for the bar chart
                 $chartCV[] = $incEV - $incAC;
                 $chartSV[] = $incEV - $incPV;
+
+                $rows[] = [
+                    'label' => $m['label'],
+                    'progress' => $progress,
+                    'pv' => $incPV,
+                    'ac' => $incAC,
+                    'ev' => $incEV,
+                ];
             } else {
                 $chartAC[] = null;
                 $chartEV[] = null;
                 $chartCV[] = null;
                 $chartSV[] = null;
             }
+
+            if ($key === $selectedMonth) {
+                $pv = $cumPV;
+                $reached = true;
+            }
         }
+
+        $ac = $cumAC;
+        $ev = $cumEV;
+
+        $sv = $ev - $pv;
+        $cv = $ev - $ac;
+        $cpi = $ac > 0 ? $ev / $ac : 0;
+        $spi = $pv > 0 ? $ev / $pv : 0;
+
+        $bac = $project->tasks->sum('cost');
+        $eac = $cpi > 0 ? $bac / $cpi : $bac;
+
+        $totalDuration = count($months);
+        $estDuration = $spi > 0 ? $totalDuration / $spi : $totalDuration;
+
+        $fromMonth = count($months) > 0 ? $months[0]['label'] : 'N/A';
+        $toMonth = count($months) > 0 ? $months[count($months) - 1]['label'] : 'N/A';
 
         return view('budgets.calculator', [
             'project' => $project,
@@ -287,8 +266,9 @@ class FinalBudgetController extends Controller
             'bac' => $bac,
             'eac' => $eac,
             'est_duration' => $estDuration,
-            'progress' => $progress,
+            'progress' => $ac > 0 ? round($ev / $ac * 100, 2) : 0,
             'selectedMonth' => $selectedMonth,
+            'rows' => $rows,
             'chartLabels' => $chartLabels,
             'chartPV' => $chartPV,
             'chartAC' => $chartAC,
