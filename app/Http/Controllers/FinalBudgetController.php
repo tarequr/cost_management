@@ -20,17 +20,17 @@ class FinalBudgetController extends Controller
         $project->load(['tasks' => function ($query) {
             $query->orderBy('id', 'asc');
         }, 'tasks.monthlyActualCosts']);
-        
+
         // 1. Get Project Months
         $budgetService = app(\App\Services\MonthlyBudgetService::class);
         $months = $budgetService->getProjectMonths($project);
-        
+
         // 2. Prepare Task Data
         $tasksData = [];
         $totals = [
             'planned' => 0,
         ];
-        
+
         // Initialize monthly totals
         $monthlyTotals = [];
         foreach ($months as $m) {
@@ -44,7 +44,7 @@ class FinalBudgetController extends Controller
         foreach ($project->tasks as $task) {
             $taskMonthlyBudget = $budgetService->calculateMonthlyBudget($task);
             $taskActuals = $task->monthlyActualCosts->keyBy('month');
-            
+
             $row = [
                 'task' => $task,
                 'monthly' => [],
@@ -53,15 +53,15 @@ class FinalBudgetController extends Controller
 
             foreach ($months as $m) {
                 $monthKey = $m['key'];
-                
+
                 // Planned
                 $planned = $taskMonthlyBudget[$monthKey] ?? 0;
-                
+
                 // Actual & EV
                 $actualRecord = $taskActuals->get($monthKey);
                 $actual = $actualRecord ? $actualRecord->actual_cost : 0;
                 $evPct = $actualRecord ? $actualRecord->earned_value_percentage : 0;
-                
+
                 // Calculate Incremental EV (assuming evPct is incremental for that month as per input logic)
                 // If evPct represents the % of the total budget "earned" in this specific month:
                 $evNominal = ($evPct / 100) * $task->cost;
@@ -74,13 +74,12 @@ class FinalBudgetController extends Controller
                 ];
 
                 // Aggregate Totals
-                if ($actualRecord) {
-                    $monthlyTotals[$monthKey]['planned'] += $planned;
-                }
+                // PV follows the final budget values shown in the table (Grand Total row)
+                $monthlyTotals[$monthKey]['planned'] += $actual;
                 $monthlyTotals[$monthKey]['actual'] += $actual;
                 $monthlyTotals[$monthKey]['ev_nominal'] += $evNominal;
             }
-            
+
             $tasksData[] = $row;
             $totals['planned'] += $task->cost;
         }
@@ -90,13 +89,13 @@ class FinalBudgetController extends Controller
         $cumPV = 0;
         $cumAC = 0;
         $cumEV = 0;
-        
+
         $bac = $totals['planned']; // Budget At Completion
 
         foreach ($months as $m) {
             $key = $m['key'];
             $stats = $monthlyTotals[$key];
-            
+
             // Increment cumulatives
             $cumPV += $stats['planned'];
             $cumAC += $stats['actual'];
@@ -117,7 +116,7 @@ class FinalBudgetController extends Controller
             // Forecasts
             // EAC = BAC / CPI
             $eac = $cpi > 0 ? $bac / $cpi : $bac; // simplified fallback
-            
+
             // Est Duration (simplified: Total Duration / SPI)
             // Need project duration.
             // Let's assume passed months count? Or total project months?
@@ -131,18 +130,18 @@ class FinalBudgetController extends Controller
                 'pv_incremental' => $stats['planned'],
                 'pv_cumulative' => $cumPV,
                 'pv_pct' => $pvPct,
-                
+
                 'ac_incremental' => $stats['actual'],
                 'ac_cumulative' => $cumAC,
-                
+
                 'ev_pct_cumulative' => $evPct,
                 'ev_cumulative' => $cumEV,
-                
+
                 'cv' => $cv,
                 'cpi' => $cpi,
                 'sv' => $sv,
                 'spi' => $spi,
-                
+
                 'eac' => $eac,
                 'est_duration' => $estDuration,
             ];
@@ -200,7 +199,7 @@ class FinalBudgetController extends Controller
 
         // 7. Forecasts
         $eac = $cpi > 0 ? $bac / $cpi : $bac;
-        
+
         // Est Duration (Total Project Months / SPI)
         $months = $budgetService->getProjectMonths($project);
         $totalDuration = count($months);
@@ -229,8 +228,8 @@ class FinalBudgetController extends Controller
 
             // Calculate incremental values for this month
             if ($monthKey === $selectedMonth) {
-                $incPV = $pv; 
-                $incAC = $ac; 
+                $incPV = $pv;
+                $incAC = $ac;
                 $incEV = $ev;
                 $hasReachedSelected = true;
             } else {
@@ -262,7 +261,7 @@ class FinalBudgetController extends Controller
                 $cumEV += $incEV;
                 $chartAC[] = $cumAC;
                 $chartEV[] = $cumEV;
-                
+
                 // Incremental Variances for the bar chart
                 $chartCV[] = $incEV - $incAC;
                 $chartSV[] = $incEV - $incPV;

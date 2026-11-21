@@ -20,9 +20,9 @@ class EVMCalculationService
     public function calculateEVM(Project $project, string $asOfMonth = null): array
     {
         $asOfMonth = $asOfMonth ?? Carbon::now()->format('Y-m');
-        
+
         // Calculate BAC (Budget at Completion) - Total project budget
-        $BAC = $project->tasks->sum('cost');
+        $BAC = $project->tasks->sum('amount');
 
         // Calculate PV (Planned Value) - Budget for work scheduled up to asOfMonth
         $PV = $this->calculatePlannedValue($project, $asOfMonth);
@@ -68,14 +68,11 @@ class EVMCalculationService
         $PV = 0;
 
         foreach ($project->tasks as $task) {
-            // Only include tasks that have been finalized (have actual cost records)
-            if ($task->monthlyActualCosts()->exists()) {
-                $monthlyBudget = $this->budgetService->calculateMonthlyBudget($task);
-                
-                foreach ($monthlyBudget as $month => $amount) {
-                    if ($month <= $asOfMonth) {
-                        $PV += $amount;
-                    }
+            $monthlyBudget = $this->budgetService->calculateMonthlyBudget($task);
+
+            foreach ($monthlyBudget as $month => $amount) {
+                if ($month <= $asOfMonth) {
+                    $PV += $amount;
                 }
             }
         }
@@ -94,7 +91,7 @@ class EVMCalculationService
             $actualCosts = $task->monthlyActualCosts()
                 ->where('month', '<=', $asOfMonth)
                 ->get();
-            
+
             $AC += $actualCosts->sum('actual_cost');
         }
 
@@ -112,10 +109,10 @@ class EVMCalculationService
             $actualCosts = $task->monthlyActualCosts()
                 ->where('month', '<=', $asOfMonth)
                 ->get();
-            
+
             foreach ($actualCosts as $cost) {
                 // EV = (% Complete) × Task Budget
-                $monthlyEV = ($cost->earned_value_percentage / 100) * $task->cost;
+                $monthlyEV = ($cost->earned_value_percentage / 100) * $task->amount;
                 $EV += $monthlyEV;
             }
         }
@@ -137,10 +134,10 @@ class EVMCalculationService
 
         foreach ($months as $monthInfo) {
             $month = $monthInfo['key'];
-            
+
             // Calculate for this month
             $evm = $this->calculateEVM($project, $month);
-            
+
             $monthlyData[] = [
                 'month' => $monthInfo['label'],
                 'month_key' => $month,
