@@ -58,6 +58,26 @@
                                 </div>
                             </div>
 
+                            <div class="mb-4">
+                                <h6 class="font-weight-bold text-muted text-uppercase small mb-3">Monthly Entries</h6>
+                                <table class="table table-bordered table-sm bg-light">
+                                    <thead class="bg-secondary text-white">
+                                        <tr><th>Month</th><th class="text-right">Work %</th><th class="text-right">PV</th><th class="text-right">AC</th><th class="text-right">EV</th></tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach ($rows as $r)
+                                            <tr>
+                                                <td>{{ $r['label'] }}</td>
+                                                <td class="text-right">{{ number_format($r['progress'], 2) }}%</td>
+                                                <td class="text-right">{{ number_format($r['pv'], 0) }}</td>
+                                                <td class="text-right">{{ number_format($r['ac'], 0) }}</td>
+                                                <td class="text-right">{{ number_format($r['ev'], 2) }}</td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+
                             <div class="row mb-4">
                                 <div class="col-md-12">
                                     <div class="card bg-white p-3 border">
