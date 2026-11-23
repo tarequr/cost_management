@@ -21,10 +21,10 @@ class BudgetController extends Controller
         $project->load(['tasks' => function ($query) {
             $query->orderBy('id', 'asc');
         }]);
-        
+
         $breakdown = $this->budgetService->getTaskWiseMonthlyBreakdown($project);
         $totalBudget = $project->tasks->sum('cost');
-        
+
         return view('budgets.draft', [
             'project' => $project,
             'tasks' => $breakdown['tasks'],
@@ -39,7 +39,7 @@ class BudgetController extends Controller
         $project->load('tasks');
         $breakdown = $this->budgetService->getTaskWiseMonthlyBreakdown($project);
         $totalBudget = $project->tasks->sum('cost');
-        
+
         return response()->json([
             'tasks' => $breakdown['tasks'],
             'months' => $breakdown['months'],
@@ -95,7 +95,7 @@ class BudgetController extends Controller
 
         $existingRecords = $task->monthlyActualCosts->keyBy('month');
         $plannedBudget = $this->budgetService->calculateMonthlyBudget($task);
-        
+
         $isLocked = $existingRecords->isNotEmpty();
 
         return view('budgets.input', compact('task', 'months', 'existingRecords', 'plannedBudget', 'isLocked'));
@@ -143,8 +143,8 @@ class BudgetController extends Controller
             }
 
             notify()->success('Budget inputs updated successfully', 'Success');
-            return redirect()->route('projects.show', $task->project_id);
-            
+            return redirect()->route('budgets.draft', $task->project_id);
+
         } catch (\Throwable $th) {
             notify()->error('Failed to update inputs', 'Error');
             return back()->withInput();

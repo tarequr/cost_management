@@ -62,7 +62,7 @@
                                 <h6 class="font-weight-bold text-muted text-uppercase small mb-3">Monthly Entries</h6>
                                 <table class="table table-bordered table-sm bg-light">
                                     <thead class="bg-secondary text-white">
-                                        <tr><th>Month</th><th class="text-right">Work %</th><th class="text-right">PV</th><th class="text-right">AC</th><th class="text-right">EV</th></tr>
+                                        <tr><th>Month</th><th class="text-right">Work %</th><th class="text-right">PV (Cum)</th><th class="text-right">AC</th><th class="text-right">EV</th></tr>
                                     </thead>
                                     <tbody>
                                         @foreach ($rows as $r)
@@ -216,7 +216,7 @@
             labels: {!! json_encode($chartLabels) !!},
             datasets: [
                 {
-                    label: 'Planned Value (PV)',
+                    label: 'PV (Cum)',
                     data: {!! json_encode($chartPV) !!},
                     borderColor: 'rgba(54, 162, 235, 1)',
                     backgroundColor: 'rgba(54, 162, 235, 0.1)',
