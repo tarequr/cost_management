@@ -212,13 +212,14 @@ class FinalBudgetController extends Controller
 
                 $chartAC[] = $cumAC;
                 $chartEV[] = $cumEV;
-                $chartCV[] = $incEV - $incAC;
-                $chartSV[] = $incEV - $incPV;
+                // S-Curve variances are based on cumulative PV (PV Cum)
+                $chartCV[] = $cumEV - $cumAC;
+                $chartSV[] = $cumEV - $cumPV;
 
                 $rows[] = [
                     'label' => $m['label'],
                     'progress' => $progress,
-                    'pv' => $incPV,
+                    'pv' => $cumPV, // PV (Cum)
                     'ac' => $incAC,
                     'ev' => $incEV,
                 ];
