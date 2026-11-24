@@ -81,20 +81,9 @@
                             <div class="row mb-4">
                                 <div class="col-md-12">
                                     <div class="card bg-white p-3 border">
-                                        <h6 class="font-weight-bold text-muted text-uppercase small mb-3">S-Curve Report (Cumulative PV, AC, EV)</h6>
+                                        <h6 class="font-weight-bold text-muted text-uppercase small mb-3">S-Curve Report (PV Cum, AC, EV)</h6>
                                         <div style="height: 350px;">
                                             <canvas id="sCurveChart"></canvas>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="row mb-4">
-                                <div class="col-md-12">
-                                    <div class="card bg-white p-3 border">
-                                        <h6 class="font-weight-bold text-muted text-uppercase small mb-3">Monthly Variances (CV & SV)</h6>
-                                        <div style="height: 250px;">
-                                            <canvas id="varianceChart"></canvas>
                                         </div>
                                     </div>
                                 </div>
@@ -318,64 +307,6 @@
         };
 
         new Chart(ctx, config);
-
-        // Variance Chart
-        const ctxVar = document.getElementById('varianceChart').getContext('2d');
-        new Chart(ctxVar, {
-            type: 'bar',
-            data: {
-                labels: {!! json_encode($chartLabels) !!},
-                datasets: [
-                    {
-                        label: 'Cost Variance (CV)',
-                        data: {!! json_encode($chartCV) !!},
-                        backgroundColor: 'rgba(255, 159, 64, 0.7)',
-                        borderColor: 'rgba(255, 159, 64, 1)',
-                        borderWidth: 1
-                    },
-                    {
-                        label: 'Schedule Variance (SV)',
-                        data: {!! json_encode($chartSV) !!},
-                        backgroundColor: 'rgba(153, 102, 255, 0.7)',
-                        borderColor: 'rgba(153, 102, 255, 1)',
-                        borderWidth: 1
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'top',
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                let label = context.dataset.label || '';
-                                if (label) {
-                                    label += ': ';
-                                }
-                                if (context.parsed.y !== null) {
-                                    label += new Intl.NumberFormat('en-US').format(context.parsed.y);
-                                }
-                                return label;
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            callback: function(value) {
-                                return new Intl.NumberFormat('en-US').format(value);
-                            }
-                        }
-                    }
-                }
-            }
-        });
     });
 </script>
 @endpush
