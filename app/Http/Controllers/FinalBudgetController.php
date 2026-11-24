@@ -210,7 +210,7 @@ class FinalBudgetController extends Controller
                 $cumAC += $incAC;
                 $cumEV += $incEV;
 
-                $chartAC[] = $cumAC;
+                $chartAC[] = $incAC; // AC chart shows the monthly entry value, same as the table
                 $chartEV[] = $cumEV;
                 // S-Curve variances are based on cumulative PV (PV Cum)
                 $chartCV[] = $cumEV - $cumAC;
